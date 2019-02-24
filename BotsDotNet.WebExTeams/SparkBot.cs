@@ -9,7 +9,7 @@ namespace BotsDotNet.WebExTeams
 
     public partial class SparkBot : BotImpl
     {
-        public const string PLATFORM = "Spark";
+        public const string PLATFORM = "WebExTeams";
         private static string _accessToken;
         private static string _friendlyName;
         private static string _hookId;

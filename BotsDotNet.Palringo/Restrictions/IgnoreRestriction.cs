@@ -7,7 +7,7 @@ namespace BotsDotNet.Palringo.Restrictions
     {
         public static List<string> IgnoreUsers = new List<string>();
 
-        public string Name => "ignored";
+        public string Name => "Ignored";
 
         public string Platform => PalBot.PLATFORM;
 

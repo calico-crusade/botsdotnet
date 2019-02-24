@@ -7,7 +7,7 @@ namespace BotsDotNet.Palringo.Restrictions
     {
         public static List<string> AuthorizedUsers = new List<string>();
 
-        public string Name => "auth";
+        public string Name => "Auth";
 
         public string Platform => PalBot.PLATFORM;
 

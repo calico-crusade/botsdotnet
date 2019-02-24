@@ -20,10 +20,11 @@ namespace BotsDotNet.Handling
     public class PluginManager : IPluginManager
     {
         private const string RESTRICTION_SPLITTER = ",";
+        private const string PLATFORM_AGNOSTIC_IND = "_";
 
         private static List<ReflectedPlugin> plugins = null;
         private static Dictionary<Type, IComparitorProfile> profiles = null;
-        private static Dictionary<string, IRestriction> restrictions = null;
+        private static Dictionary<string, Dictionary<string, IRestriction>> restrictions = null;
 
         private readonly IReflectionUtility _reflectionUtility;
 
@@ -72,7 +73,7 @@ namespace BotsDotNet.Handling
                     //Run the plugin
                     _reflectionUtility.ExecuteDynamicMethod(plugin.Method, plugin.Instance, out bool error, 
                         bot, message, res.CappedCommand, message.User, message.Group,
-                        plugin, plugin.Command);
+                        plugin.Instance, plugin.Command);
                     //Return the results of the plugin execution
                     return new PluginResult(error ? PluginResultType.Error : PluginResultType.Success, null, plugin);
                 }
@@ -100,23 +101,38 @@ namespace BotsDotNet.Handling
 
             foreach(var part in parts)
             {
-                if (!restrictions.ContainsKey(part))
+                var res = GetRestriction(bot, part);
+                if (res == null)
                     continue;
 
-                var res = restrictions[part];
-
-                if (!string.IsNullOrEmpty(res.Platform) && bot.Platform != res.Platform)
+                if (await res.Validate(bot, message))
                     continue;
+                
+                if (executeReject)
+                    await res.OnRejected(bot, message);
 
-                if (!await res.Validate(bot, message))
-                {
-                    if (executeReject)
-                        await res.OnRejected(bot, message);
-                    return false;
-                }
+                return false;
             }
 
             return true;
+        }
+
+        public IRestriction GetRestriction(IBot bot, string name)
+        {
+            Init();
+            var plat = bot.Platform ?? PLATFORM_AGNOSTIC_IND;
+
+            if (restrictions.ContainsKey(plat) &&
+                restrictions[plat].ContainsKey(name))
+                return restrictions[plat][name];
+
+            if (!restrictions.ContainsKey(PLATFORM_AGNOSTIC_IND))
+                return null;
+
+            if (!restrictions[PLATFORM_AGNOSTIC_IND].ContainsKey(name))
+                return null;
+
+            return restrictions[PLATFORM_AGNOSTIC_IND][name];
         }
 
         public IEnumerable<IExportedPlugin> Plugins()
@@ -164,15 +180,26 @@ namespace BotsDotNet.Handling
             if (restrictions != null)
                 return;
 
-            restrictions = new Dictionary<string, IRestriction>();
+            restrictions = new Dictionary<string, Dictionary<string, IRestriction>>();
 
             foreach(var restriction in _reflectionUtility.GetAllTypesOf<IRestriction>())
             {
-                var name = restriction.Name.ToLower().Trim();
-                if (restrictions.ContainsKey(name))
-                    throw new Exception($"Duplicate restriction loaded: {name}");
+                var plat = restriction.Platform?.Split(new[] { RESTRICTION_SPLITTER }, StringSplitOptions.RemoveEmptyEntries);
 
-                restrictions.Add(name, restriction);
+                if (plat == null || plat.Length <= 0)
+                    plat = new string[] { PLATFORM_AGNOSTIC_IND };
+
+                foreach (var platform in plat)
+                {
+                    if (!restrictions.ContainsKey(platform))
+                        restrictions.Add(platform, new Dictionary<string, IRestriction>());
+
+                    var name = restriction.Name.ToLower().Trim();
+                    if (restrictions[platform].ContainsKey(name))
+                        throw new Exception($"Duplicate restriction loaded: {name}");
+
+                    restrictions[platform].Add(name, restriction);
+                }
             }
         }
 
@@ -192,12 +219,30 @@ namespace BotsDotNet.Handling
                     var attributes = method.GetCustomAttributes<Command>();
                     foreach(var attribute in attributes)
                     {
-                        yield return new ReflectedPlugin
+                        var platforms = attribute.Platform?.Split(new[] { RESTRICTION_SPLITTER }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (string.IsNullOrEmpty(attribute.Platform) || platforms == null || platforms.Length <= 0)
                         {
-                            Command = attribute,
-                            Instance = plugin,
-                            Method  = method
-                        };
+                            yield return new ReflectedPlugin
+                            {
+                                Command = attribute,
+                                Instance = plugin,
+                                Method = method
+                            };
+                            continue;
+                        }
+
+                        foreach (var plat in platforms)
+                        {
+                            var tmp = attribute.Clone();
+                            tmp.Platform = plat;
+                            yield return new ReflectedPlugin
+                            {
+                                Command = tmp,
+                                Instance = plugin,
+                                Method = method
+                            };
+                        }
                     }
                 }
             }

@@ -15,8 +15,8 @@ namespace BotsDotNet
     public class Command : Attribute, ICommand
     {
         public virtual string Comparitor { get; private set; }
-        public virtual MessageType? MessageType { get; private set; } = null;
-        public virtual string Restriction { get; private set; } = null;
+        public virtual MessageType? MessageType { get; set; } = null;
+        public virtual string Restriction { get; set; } = null;
         public virtual string Description { get; set; } = null;
         public virtual string Platform { get; set; } = null;
 
@@ -42,6 +42,17 @@ namespace BotsDotNet
             Comparitor = comparitor;
             Restriction = restriction;
             MessageType = messageType;
+        }
+
+        public Command Clone()
+        {
+            return new Command(Comparitor)
+            {
+                MessageType = MessageType,
+                Restriction = Restriction,
+                Description = Description,
+                Platform = Platform
+            };
         }
     }
 }
