@@ -10,6 +10,6 @@
         [Payload]
         public DataMap Data { get; set; }
 
-        public string Id => (Data.ContainsKey("sub-id") ? Data.GetValueInt("sub-id") : 0).ToString();
+        public string Id => (Data != null && Data.ContainsKey("sub-id") ? Data.GetValueInt("sub-id") : 0).ToString();
     }
 }
