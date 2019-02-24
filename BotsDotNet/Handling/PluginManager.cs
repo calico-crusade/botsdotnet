@@ -38,6 +38,9 @@ namespace BotsDotNet.Handling
             Init();
             var bot = message.Bot;
 
+            if (!MatchesPrefix(message))
+                return new PluginResult(PluginResultType.NotFound, null, null);
+
             foreach(var plugin in plugins)
             {
                 try
@@ -85,6 +88,24 @@ namespace BotsDotNet.Handling
             }
 
             return new PluginResult(PluginResultType.NotFound, null, null);
+        }
+
+        public bool MatchesPrefix(IMessage message)
+        {
+            var bot = message.Bot;
+            if (string.IsNullOrEmpty(bot.Prefix))
+                return true;
+
+            message.Content = message.Content.Trim();
+
+            var loweredM = message.Content.ToLower();
+            var prefixM = bot.Prefix.Trim().ToLower();
+
+            if (!loweredM.StartsWith(prefixM))
+                return false;
+
+            message.Content = message.Content.Remove(0, prefixM.Length);
+            return true;
         }
 
         public async Task<bool> IsInRole(string restricts, IMessage message, bool executeReject = false)

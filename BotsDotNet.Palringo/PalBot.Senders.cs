@@ -147,17 +147,17 @@ namespace BotsDotNet.Palringo
         }
         
         public async Task<bool> Login(string email, string password,
+            string prefix = null,
             AuthStatus status = AuthStatus.Online,
             DeviceType device = DeviceType.PC,
-            bool spamFilter = false,
-            bool enablePlugins = true)
+            bool spamFilter = false)
         {
             this.Email = email;
             this.Password = password;
             this.Status = status;
             this.Device = device;
             this.SpamFilter = spamFilter;
-            this.EnablePlugins = enablePlugins;
+            this.Prefix = prefix;
 
             var connected = await _client.Start();
 

@@ -17,7 +17,7 @@ namespace BotsDotNet.Discord.CliTest
         public async Task Start(string token)
         {
             Bot.OnError += (e) => Console.WriteLine(e);
-            var success = await Bot.Start(token);
+            var success = await Bot.Start(token, "$");
 
             if (success)
             {

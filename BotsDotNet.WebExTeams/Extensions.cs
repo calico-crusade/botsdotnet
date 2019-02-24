@@ -20,11 +20,10 @@ namespace BotsDotNet.WebExTeams
         public const string SETTINGS_API_KEY = "SPARK_APIKEY";
         public const string SETTINGS_BASE_URI = "SPARK_BASE_URI";
         public const string SETTINGS_PART = "SparkConfig";
-        public const string OUTPUT_LOG = @"logs\\log-{0:yyyy-MM-dd}.txt";
+        public const string OUTPUT_LOG_DIRECTORY = "logs";
+        public const string OUTPUT_LOG_FILENAME = "log-{0:yyyy-MM-dd_HH}.txt";
 
-        public static IServiceProvider ConfigureSparkBot(this IServiceCollection services, 
-            Action<MapHandler> handler = null, 
-            IConfiguration config = null)
+        public static IServiceProvider ConfigureSparkBot(this IServiceCollection services, Container container)
         {
             try
             {
@@ -35,18 +34,51 @@ namespace BotsDotNet.WebExTeams
                     options.SuppressModelStateInvalidFilter = true;
                 });
 
-                var pf = new PhysicalFileProvider(AppContext.BaseDirectory);
-                config = config ?? new ConfigurationBuilder()
-                                    .SetFileProvider(pf)
-                                    .AddJsonFile(SETTINGS_FILE, false, true)
-                                    .AddEnvironmentVariables()
-                                    .Build();
+                container.Populate(services);
 
-                var configUtil = new ConfigUtility();
+                return container.GetInstance<IServiceProvider>();
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+                throw;
+            }
+        }
+
+        public static IServiceProvider ConfigureSparkBot(this IServiceCollection services, Config config, Action<MapHandler> handler = null)
+        {
+            try
+            {
+                var map = ReflectionUtility.DependencyInjection()
+                                                   .Use<IBot, SparkBot>()
+                                                   .Config(c =>
+                                                   {
+                                                       c.ForSingletonOf<IBot>();
+                                                   })
+                                                   .Use<IPluginManager, PluginManager>()
+                                                   .Use<IConfig, Config>(config);
+
+                handler?.Invoke(map);
+
+                var container = map.Create();
+                return ConfigureSparkBot(services, container);
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+                throw;
+            }
+        }
+
+        public static IServiceProvider ConfigureSparkBot(this IServiceCollection services,  IConfiguration config, Action<MapHandler> handler = null)
+        {
+            try
+            {
+                var configUtil = new Config();
                 config.GetSection(SETTINGS_PART).Bind(configUtil);
 
                 if (configUtil == null)
-                    configUtil = new ConfigUtility();
+                    configUtil = new Config();
 
                 if (string.IsNullOrEmpty(configUtil.ApiKey))
                     configUtil.ApiKey = config[SETTINGS_API_KEY];
@@ -54,24 +86,27 @@ namespace BotsDotNet.WebExTeams
                 if (string.IsNullOrEmpty(configUtil.BaseUri))
                     configUtil.BaseUri = config[SETTINGS_BASE_URI];
 
-                Log(configUtil);
+                return ConfigureSparkBot(services, configUtil, handler);
+            }
+            catch (Exception ex)
+            {
+                Log(ex);
+                throw;
+            }
+        }
 
-                var map = ReflectionUtility.DependencyInjection()
-                                           .Use<IBot, SparkBot>()
-                                           .Config(c =>
-                                           {
-                                               c.ForSingletonOf<IBot>();
-                                           })
-                                           .Use<IPluginManager, PluginManager>()
-                                           .Use<IConfigUtility, ConfigUtility>(configUtil);
+        public static IServiceProvider ConfigureSparkBot(this IServiceCollection services, Action<MapHandler> handler = null)
+        {
+            try
+            {
+                var pf = new PhysicalFileProvider(AppContext.BaseDirectory);
+                var config = new ConfigurationBuilder()
+                                    .SetFileProvider(pf)
+                                    .AddJsonFile(SETTINGS_FILE, false, true)
+                                    .AddEnvironmentVariables()
+                                    .Build();
 
-                handler?.Invoke(map);
-
-                var container = map.Create();
-
-                container.Populate(services);
-
-                return container.GetInstance<IServiceProvider>();
+                return ConfigureSparkBot(services, config, handler);
             }
             catch (Exception ex)
             {
@@ -102,8 +137,13 @@ namespace BotsDotNet.WebExTeams
 
         public static void Log(object item)
         {
-            var filename = string.Format(OUTPUT_LOG, DateTime.Now);
-            var path = Path.Combine(AppContext.BaseDirectory, filename);
+            var dir = Path.Combine(AppContext.BaseDirectory, OUTPUT_LOG_DIRECTORY);
+            var filename = string.Format(OUTPUT_LOG_FILENAME, DateTime.Now);
+            var path = Path.Combine(dir, filename);
+
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            
             File.AppendAllText(path, $"\r\n\r\n[{DateTime.Now}] LOG:\r\n{JsonConvert.SerializeObject(item, Formatting.Indented)}");
         }
     }

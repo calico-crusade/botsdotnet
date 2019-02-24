@@ -4,7 +4,7 @@ namespace BotsDotNet.Discord.CliTest
 {
     public class TestPlugin : IPlugin
     {
-        [Command("!test")]
+        [Command("test", Description = "Testing")]
         public async Task Testing(IMessage msg, IUser user)
         {
             await msg.Reply($"Hello there {user.Nickname}. How are you doing today?");

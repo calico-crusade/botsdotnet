@@ -22,12 +22,13 @@ namespace BotsDotNet.Discord
 
         public DiscordBot(IPluginManager pluginManager) : base(pluginManager) { }
 
-        public async Task<bool> Start(string token)
+        public async Task<bool> Start(string token, string prefix = null)
         {
             try
             {
                 var tsc = new TaskCompletionSource<bool>();
                 Token = token;
+                Prefix = prefix;
                 Connection = new DiscordSocketClient();
                 Connection.MessageReceived += async (m) => await MessageReceived(m);
                 Connection.Log += Log;

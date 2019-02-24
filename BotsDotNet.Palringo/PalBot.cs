@@ -29,8 +29,6 @@ namespace BotsDotNet.Palringo
         public AuthStatus Status { get; private set; }
         public DeviceType Device { get; private set; }
         public bool SpamFilter { get; private set; }
-        public bool EnablePlugins { get; private set; }
-        public string[] Groupings { get; private set; }
         public IBroadcastUtility On { get; private set; }
         public ISubProfiling SubProfiling { get; }
         public bool Connected => _client?.Connected ?? false;

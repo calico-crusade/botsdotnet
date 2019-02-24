@@ -33,7 +33,7 @@ namespace BotsDotNet.Palringo.CliTest
 
         public async Task Start(string email, string password)
         {
-            var success = await ((PalBot)Bot).Login(email, password);
+            var success = await ((PalBot)Bot).Login(email, password, "!");
 
             if (success)
             {

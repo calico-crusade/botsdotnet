@@ -4,13 +4,8 @@ namespace BotsDotNet.Palringo
 {
     public static class InstanceExtensions
     {
-        public static IBot UseConsoleLogging(this IBot ibot, bool logUnhandled = false)
+        public static PalBot UseConsoleLogging(this PalBot bot, bool logUnhandled = false)
         {
-            if (!(ibot is PalBot))
-                return ibot;
-
-            var bot = (PalBot)ibot;
-
             if (logUnhandled)
                 bot.On.UnhandledPacket += (p) =>
                     Extensions.ColouredConsole($"^w[^g{DateTime.Now.ToString("yyyy-MM-dd HH:mm")}^w] ^rUNHANDLED ^w{p.Command}");
@@ -32,46 +27,36 @@ namespace BotsDotNet.Palringo
 
             return bot;
         }
-        public static IBot AddAuth(this IBot bot, params string[] ids)
+        public static PalBot AddAuth(this PalBot bot, params string[] ids)
         {
             Restrictions.AuthRestriction.AuthorizedUsers.AddRange(ids);
             return bot;
         }
-        public static IBot RemoveAuth(this IBot bot, params string[] ids)
+        public static PalBot RemoveAuth(this PalBot bot, params string[] ids)
         {
             foreach (var id in ids)
                 Restrictions.AuthRestriction.AuthorizedUsers.Remove(id);
             return bot;
         }
-        public static IBot AddIgnoredUser(this IBot bot, params string[] ids)
+        public static PalBot AddIgnoredUser(this PalBot bot, params string[] ids)
         {
             Restrictions.IgnoreRestriction.IgnoreUsers.AddRange(ids);
             return bot;
         }
-        public static IBot RemoveIgnoredUser(this IBot bot, params string[] ids)
+        public static PalBot RemoveIgnoredUser(this PalBot bot, params string[] ids)
         {
             foreach (var id in ids)
                 Restrictions.IgnoreRestriction.IgnoreUsers.Remove(id);
             return bot;
         }
-        public static IBot AutoReconnect(this IBot ibot)
+        public static PalBot AutoReconnect(this PalBot bot)
         {
-            if (!(ibot is PalBot))
-                return ibot;
-
-            var bot = (PalBot)ibot;
-
-            bot.On.Disconnected += async () => await bot.Login(bot.Email, bot.Password, bot.Status, bot.Device, bot.SpamFilter);
+            bot.On.Disconnected += async () => await bot.Login(bot.Email, bot.Password, bot.Prefix, bot.Status, bot.Device, bot.SpamFilter);
             return bot;
         }
-        public static IBot ReloginOnThrottle(this IBot ibot)
+        public static PalBot ReloginOnThrottle(this PalBot bot)
         {
-            if (!(ibot is PalBot))
-                return ibot;
-
-            var bot = (PalBot)ibot;
-
-            bot.On.Throttle += async (b, c) => await b.Login(b.Email, b.Password, b.Status, b.Device, b.SpamFilter, b.EnablePlugins);
+            bot.On.Throttle += async (b, c) => await b.Login(b.Email, b.Password, b.Prefix, b.Status, b.Device, b.SpamFilter);
             return bot;
         }
     }

@@ -17,6 +17,7 @@ namespace BotsDotNet
         IUser Profile { get; }
         IGroup[] Groups { get; }
         string Platform { get; }
+        string Prefix { get; }
 
         Task<IMessage> NextMessage(Func<IMessage, bool> predicate);
         Task<IMessage> NextMessage(string groupid);
@@ -51,6 +52,7 @@ namespace BotsDotNet
         public abstract IUser Profile { get; }
         public abstract IGroup[] Groups { get; }
         public abstract string Platform { get; }
+        public virtual string Prefix { get; set; } = null;
 
         private readonly IPluginManager pluginManager;
         private ConcurrentDictionary<Func<IMessage, bool>, TaskCompletionSource<IMessage>> awaitedMessages { get; set; }

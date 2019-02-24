@@ -7,7 +7,7 @@ namespace BotsDotNet
     public interface IMessage
     {
         MessageType MessageType { get; }
-        string Content { get; }
+        string Content { get; set;  }
         DateTime TimeStamp { get; }
         string UserId { get; }
         string GroupId { get; }

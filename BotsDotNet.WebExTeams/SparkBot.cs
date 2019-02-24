@@ -30,27 +30,28 @@ namespace BotsDotNet.WebExTeams
         public string HookId => _hookId;
         
         private ICacheUtility cacheUtility;
-        private IConfigUtility configUtility;
+        private IConfig config;
 
         public SparkBot(
             IPluginManager pluginManager,
             ICacheUtility cacheUtility,
-            IConfigUtility configUtility) : base(pluginManager)
+            IConfig config) : base(pluginManager)
         {
             this.cacheUtility = cacheUtility;
-            this.configUtility = configUtility;
+            this.config = config;
         }
 
         public async Task Initialize()
         {
-            await Initialize(configUtility.ApiKey, configUtility.BotName);
+            await Initialize(config.ApiKey, config.BotName, config.Prefix);
         }
 
-        public async Task Initialize(string token, string name)
+        public async Task Initialize(string token, string name, string prefix)
         {
             if (_connection != null)
                 return;
 
+            Prefix = prefix;
             _accessToken = token;
             _friendlyName = name;
             _connection = new Spark(token);
@@ -61,7 +62,7 @@ namespace BotsDotNet.WebExTeams
 
         public async Task HandleHooks()
         {
-            var targetUrl = configUtility.WebhookUri + FriendlyName;
+            var targetUrl = config.WebhookUri + FriendlyName;
             var hooks = await Connection.GetWebhooksAsync();
 
             if (hooks == null || hooks.Count == 0)
@@ -96,10 +97,10 @@ namespace BotsDotNet.WebExTeams
 
         public async Task<string> CreateResourceHook()
         {
-            var targetUrl = configUtility.WebhookUri;
+            var targetUrl = config.WebhookUri;
             return (await Connection.CreateWebhookAsync
             (
-                configUtility.HookName,
+                config.HookName,
                 targetUrl,
                 "all",
                 "all",
