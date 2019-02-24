@@ -71,9 +71,13 @@ namespace BotsDotNet.Discord
         
         public static DiscordBot Create()
         {
-            return (DiscordBot)ReflectionUtility.DependencyInjection()
-                                                .Use<IBot, DiscordBot>()
-                                                .Build<IBot>();
+            return (DiscordBot)DependencyResolution().Build<IBot>();
+        }
+
+        public static MapHandler DependencyResolution()
+        {
+            return ReflectionUtility.DependencyInjection()
+                                    .Use<IBot, DiscordBot>();
         }
     }
 }

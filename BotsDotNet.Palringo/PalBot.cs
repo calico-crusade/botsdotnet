@@ -207,19 +207,23 @@ namespace BotsDotNet.Palringo
 
         public static PalBot Create()
         {
-            return (PalBot)ReflectionUtility.DependencyInjection()
-                                            .Use<IBot, PalBot>()
-                                            .Use<IPacketSerializer, PacketSerializer>()
-                                            .Use<IPacketDeserializer, PacketDeserializer>()
-                                            .Use<IPacketMapper, PacketMapper>()
-                                            .Use<IPacketWatcher, PacketWatcher>()
-                                            .Use<IPacketTemplates, PacketTemplates>()
-                                            .Use<IZLibCompression, ZLibCompression>()
-                                            .Use<IAuthenticationUtility, AuthenticationUtility>()
-                                            .Use<IPacketHandlerHub, PacketHandlerHub>()
-                                            .Use<ISubProfiling, SubProfiling>()
-                                            .Use<IBroadcastUtility, BroadcastUtility>()
-                                            .Build<IBot>();
+            return (PalBot)DependencyResolution().Build<IBot>();
+        }
+
+        public static MapHandler DependencyResolution()
+        {
+            return ReflectionUtility.DependencyInjection()
+                                    .Use<IBot, PalBot>()
+                                    .Use<IPacketSerializer, PacketSerializer>()
+                                    .Use<IPacketDeserializer, PacketDeserializer>()
+                                    .Use<IPacketMapper, PacketMapper>()
+                                    .Use<IPacketWatcher, PacketWatcher>()
+                                    .Use<IPacketTemplates, PacketTemplates>()
+                                    .Use<IZLibCompression, ZLibCompression>()
+                                    .Use<IAuthenticationUtility, AuthenticationUtility>()
+                                    .Use<IPacketHandlerHub, PacketHandlerHub>()
+                                    .Use<ISubProfiling, SubProfiling>()
+                                    .Use<IBroadcastUtility, BroadcastUtility>();
         }
     }
 }
