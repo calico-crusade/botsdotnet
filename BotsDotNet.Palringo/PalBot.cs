@@ -213,6 +213,8 @@ namespace BotsDotNet.Palringo
         public static MapHandler DependencyResolution()
         {
             return ReflectionUtility.DependencyInjection()
+                                    .AllOf<IPacketHandler>()
+                                    .AllOf<IWatch>()
                                     .Use<IBot, PalBot>()
                                     .Use<IPacketSerializer, PacketSerializer>()
                                     .Use<IPacketDeserializer, PacketDeserializer>()
