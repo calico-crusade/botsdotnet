@@ -15,8 +15,16 @@ All of the platforms supported are using unofficial libraries. Please refer to e
 ## How to
 See the [Wiki Pages](https://github.com/calico-crusade/botsdotnet/wiki) for an introduction.
 
-## Issues
-Feel free to log any bugs or issues you see, I will get to them as soon as time allows. Alternatively you can contact me on using the platforms below:
+## Suggestions
+Have a suggestion, comment, question or concern? Feel free to [Contact Me](#contact-me) or drop an issue.
+
+Platform support suggestions should be handled via issues or pull-requests.
+
+Bugs or technical issues should be handles via issues.
+
+Contributions should be handled via pull-requests.
+
+## Contact me
 * [Discord](https://discordapp.com) - ```Cardboard#0026```
-* [Palringo](https://palringo.im/u/43681734) - ```43681734```
+* [Palringo.im](https://palringo.im/u/43681734) - ```43681734```
 * [WebExTeams](https://www.webex.com/team-collaboration.html) - I don't have a public profile on Teams, unfortunately.
