@@ -13,8 +13,8 @@ namespace BotsDotNet.Palringo
     public static class ImageExentions
     {
         #region Imaging Extensions
-        public const string UserAvatarUrl = "https://clientavatars.BotsDotNet.Palringo.net/FileServerSpring/subscriber/avatar/{0}?size=500#0";
-        public const string GroupAvatarUrl = "https://clientavatars.BotsDotNet.Palringo.net/FileServerSpring/group/avatar/{0}?size=500";
+        public const string UserAvatarUrl = "https://clientavatars.palapi.net/FileServerSpring/subscriber/avatar/{0}?size=500#0";
+        public const string GroupAvatarUrl = "https://clientavatars.palapi.net/FileServerSpring/group/avatar/{0}?size=500";
 
         public static Bitmap ToBitmap(this byte[] data)
         {
