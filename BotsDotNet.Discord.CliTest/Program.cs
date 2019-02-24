@@ -10,10 +10,13 @@ namespace BotsDotNet.Discord.CliTest
         public Program()
         {
             Bot = DiscordBot.Create();
+
+            Bot.RegisterTestPlugin();
         }
 
         public async Task Start(string token)
         {
+            Bot.OnError += (e) => Console.WriteLine(e);
             var success = await Bot.Start(token);
 
             if (success)

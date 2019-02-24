@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BotsDotNet.TestPlugin\BotsDotNet.TestPlugin.csproj" />
     <ProjectReference Include="..\BotsDotNet.WebExTeams\BotsDotNet.WebExTeams.csproj" />
   </ItemGroup>
 

@@ -1,32 +1,10 @@
-﻿using System;
-
-namespace BotsDotNet.Palringo
+﻿namespace BotsDotNet.Palringo
 {
-    using SubProfile;
-
-    public class Message : IMessage
+    public class Message : MessageImpl
     {
-        public MessageType MessageType { get; private set; }
-
-        public string Content { get; private set; }
-
-        public DateTime TimeStamp { get; private set; }
-
-        public string UserId { get; private set; }
-
-        public string GroupId { get; private set; }
-
-        public string ContentType { get; private set; }
-
-        public IUser User { get; private set; }
-
-        public IGroup Group { get; private set; }
-
-        public string ReturnAddress => MessageType == MessageType.Group ? GroupId : UserId;
-
         public MessagePacket Original { get; private set; }
 
-        public Message(MessagePacket packet, IUser user, IGroup group)
+        public Message(MessagePacket packet, IUser user, IGroup group, IBot bot)
         {
             MessageType = packet.MesgType == MessageType.Group ? MessageType.Group : MessageType.Private;
             Content = packet.Content;
@@ -37,6 +15,7 @@ namespace BotsDotNet.Palringo
             User = user;
             Group = group;
             Original = packet;
+            Bot = bot;
         }
     }
 }

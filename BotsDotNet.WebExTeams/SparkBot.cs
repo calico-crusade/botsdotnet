@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace BotsDotNet.WebExTeams
@@ -8,41 +7,38 @@ namespace BotsDotNet.WebExTeams
     using SparkDotNet;
     using Util;
 
-    public partial class SparkBot : IBot
+    public partial class SparkBot : BotImpl
     {
-        public const string PLATFORM = "WebExTeams";
+        public const string PLATFORM = "Spark";
         private static string _accessToken;
         private static string _friendlyName;
         private static string _hookId;
         private static Spark _connection;
 
-        public IUser Profile { get; private set; }
+        private IUser _prof;
 
-        public IGroup[] Groups => throw new NotImplementedException();
+        public override IUser Profile => _prof;
 
-        public string Platform => PLATFORM;
+        public override IGroup[] Groups => throw new NotImplementedException();
+
+        public override string Platform => PLATFORM;
 
         public string AccessToken => _accessToken;
         public string FriendlyName => _friendlyName;
         public Spark Connection => _connection;
         public string MyId => Profile.Id;
         public string HookId => _hookId;
-
-        private IPluginManager pluginManager;
+        
         private ICacheUtility cacheUtility;
         private IConfigUtility configUtility;
-
-        private ConcurrentDictionary<Func<Message, bool>, TaskCompletionSource<Message>> awaitedMessages { get; set; }
 
         public SparkBot(
             IPluginManager pluginManager,
             ICacheUtility cacheUtility,
-            IConfigUtility configUtility)
+            IConfigUtility configUtility) : base(pluginManager)
         {
-            this.pluginManager = pluginManager;
             this.cacheUtility = cacheUtility;
             this.configUtility = configUtility;
-            awaitedMessages = new ConcurrentDictionary<Func<Message, bool>, TaskCompletionSource<Message>>();
         }
 
         public async Task Initialize()
@@ -59,7 +55,7 @@ namespace BotsDotNet.WebExTeams
             _friendlyName = name;
             _connection = new Spark(token);
 
-            Profile = await Connection.GetMeAsync();
+            _prof = await Connection.GetMeAsync();
             await HandleHooks();
         }
 
@@ -123,30 +119,7 @@ namespace BotsDotNet.WebExTeams
             if (msg.Content.Trim().StartsWith(prof.Nickname))
                 msg.Content = msg.Content.Trim().Remove(0, prof.Nickname.Length).Trim();
 
-            if (msg.User.Id == MyId)
-                return;
-
-            if (CheckMessage(msg))
-                return;
-
-            var resp = await pluginManager.Process(this, msg);
-        }
-
-        public bool CheckMessage(Message msg)
-        {
-            var tests = awaitedMessages.ToArray();
-
-            foreach (var t in tests)
-            {
-                if (!t.Key(msg))
-                    continue;
-
-                awaitedMessages.TryRemove(t.Key, out TaskCompletionSource<Message> output);
-                output.SetResult(msg);
-                return true;
-            }
-
-            return false;
+            await MessageReceived(msg);
         }
     }
 }

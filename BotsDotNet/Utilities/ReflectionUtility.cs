@@ -25,6 +25,8 @@ namespace BotsDotNet.Utilities
 
         object GetInstance(Type type);
 
+        object ExecuteDynamicMethod(MethodInfo info, object def, out bool error, params object[] defaultparameters);
+
         object ExecuteMethod(MethodInfo info, object def, out bool error, params object[] pars);
 
         T Clone<T>(T item);
@@ -155,12 +157,59 @@ namespace BotsDotNet.Utilities
 
         }
 
+        public object ExecuteDynamicMethod(MethodInfo info, object def, out bool error, params object[] defaultparameters)
+        {
+            try
+            {
+                error = false;
+                if (info == null)
+                    return null;
+
+                var pars = info.GetParameters();
+
+                if (pars.Length <= 0)
+                    return ExecuteMethod(info, def, out error);
+
+                var args = new object[pars.Length];
+
+                for (var i = 0; i < pars.Length; i++)
+                {
+                    var par = pars[i];
+
+                    var pt = par.ParameterType;
+
+                    var fit = defaultparameters.FirstOrDefault(t => pt.IsAssignableFrom(t.GetType()));
+
+                    if (fit != null)
+                    {
+                        args[i] = fit;
+                        continue;
+                    }
+
+                    var next = GetInstance(pt);
+                    if (next != null)
+                    {
+                        args[i] = next;
+                        continue;
+                    }
+
+                    args[i] = pt.IsValueType ? Activator.CreateInstance(pt) : null;
+                }
+
+                return ExecuteMethod(info, def, out error, args);
+            }
+            catch (Exception ex)
+            {
+                error = true;
+                return ex;
+            }
+        }
+        
         public object ExecuteMethod(MethodInfo info, object def, out bool error, params object[] pars)
         {
             try
             {
                 error = false;
-
                 return info.Invoke(def, pars);
             }
             catch (Exception ex)

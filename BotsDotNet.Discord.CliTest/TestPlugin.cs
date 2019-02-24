@@ -5,13 +5,13 @@ namespace BotsDotNet.Discord.CliTest
     public class TestPlugin : IPlugin
     {
         [Command("!test")]
-        public async Task Testing(IBot bot, IMessage message, string cmd)
+        public async Task Testing(IMessage msg, IUser user)
         {
-            await bot.Reply(message, "Hello world! " + cmd);
+            await msg.Reply($"Hello there {user.Nickname}. How are you doing today?");
 
-            var msg = await bot.NextGroupMessage(message.GroupId);
+            var answer = await msg.NextMessage();
 
-            await bot.Reply(message, "Well damn, " + message.User.Nickname + " - Nice " + msg.Content);
+            await msg.Reply($"I'm glad you're {answer.Content}");
         }
     }
 }

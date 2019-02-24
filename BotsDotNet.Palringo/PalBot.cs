@@ -14,17 +14,15 @@ namespace BotsDotNet.Palringo
     using Util;
     using Utilities;
 
-    public partial class PalBot : IBot
+    public partial class PalBot : BotImpl
     {
         public static string DefaultHost = "im.palringo.com";
         public static int DefaultPort = 12345;
         public const string PLATFORM = "Palringo";
 
-        public IUser Profile => SubProfiling.Profile;
-
-        public IGroup[] Groups => SubProfiling.Groups.Values.ToArray();
-
-        public string Platform => PLATFORM;
+        public override IUser Profile => SubProfiling.Profile;
+        public override IGroup[] Groups => SubProfiling.Groups.Values.ToArray();
+        public override string Platform => PLATFORM;
 
         public string Email { get; private set; }
         public string Password { get; private set; }
@@ -65,7 +63,7 @@ namespace BotsDotNet.Palringo
             IPacketHandlerHub handlerHub,
             ISubProfiling subProfiling,
             IPluginManager pluginManager,
-            IBroadcastUtility broadcast)
+            IBroadcastUtility broadcast) : base(pluginManager)
         {
             this.packetSerializer = packetSerializer;
             this.packetDeserializer = packetDeserializer;
@@ -88,6 +86,7 @@ namespace BotsDotNet.Palringo
             _client.OnDataReceived += (c, b) => this.packetDeserializer.ReadPacket(c, b);
 
             On.Exception += (e, n) => _error?.Invoke(e, n);
+            On.Exception += (e, n) => Error(e);
             On.Message += (b, m) => _message?.Invoke(b, m);
             this.broadcast.PacketParsed += (c, p) => PacketReceived(p);
         }
@@ -174,10 +173,8 @@ namespace BotsDotNet.Palringo
                 return;
             
             var msg = await Message(om);
-            
-            //Process any plugins
-            var result = await pluginManager.Process(this, msg);
-            //Do something with the result?
+
+            await MessageReceived(msg);
         }
 
         public PalBot Disconnected(Action action)

@@ -1,33 +1,14 @@
 ﻿using Discord.WebSocket;
-using System;
 
 namespace BotsDotNet.Discord
 {
-    public class Message : IMessage
+    public class Message : MessageImpl
     {
-        public MessageType MessageType { get; set; }
-
-        public string Content { get; set; }
-
-        public DateTime TimeStamp { get; set; }
-
-        public string UserId { get; set; }
-
-        public string GroupId { get; set; }
-
-        public string ContentType { get; set; }
-
-        public IUser User { get; set; }
-
-        public IGroup Group { get; set; }
-
-        public string ReturnAddress => MessageType == MessageType.Private ? UserId : GroupId;
-
         public SocketMessage Original { get; private set; }
 
         public ISocketMessageChannel ReturnChannel { get; private set; }
 
-        public Message(SocketMessage message, IUser user, IGroup group)
+        public Message(SocketMessage message, IUser user, IGroup group, IBot bot)
         {
             User = user;
             Group = group;
@@ -40,6 +21,7 @@ namespace BotsDotNet.Discord
             UserId = message.Author.Id.ToString();
             GroupId = message?.Channel?.Id.ToString();
             ContentType = "text";
+            Bot = bot;
         }
     }
 }

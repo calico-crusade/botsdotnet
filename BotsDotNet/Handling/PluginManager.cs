@@ -10,9 +10,9 @@ namespace BotsDotNet.Handling
 
     public interface IPluginManager
     {
-        Task<PluginResult> Process(IBot bot, IMessage message);
+        Task<PluginResult> Process(IMessage message);
 
-        Task<bool> IsInRole(string restricts, IBot bot, IMessage message, bool executeReject = false);
+        Task<bool> IsInRole(string restricts, IMessage message, bool executeReject = false);
 
         IEnumerable<IExportedPlugin> Plugins();
     }
@@ -32,9 +32,10 @@ namespace BotsDotNet.Handling
             _reflectionUtility = reflectionUtility;
         }
 
-        public async Task<PluginResult> Process(IBot bot, IMessage message)
+        public async Task<PluginResult> Process(IMessage message)
         {
             Init();
+            var bot = message.Bot;
 
             foreach(var plugin in plugins)
             {
@@ -65,11 +66,13 @@ namespace BotsDotNet.Handling
                         continue;
 
                     //Stop processing plugins if user doesn't have the correct permissions
-                    if (!await IsInRole(plugin.Command.Restriction, bot, message, true))
+                    if (!await IsInRole(plugin.Command.Restriction, message, true))
                         return new PluginResult(PluginResultType.Restricted, null, null);
 
                     //Run the plugin
-                    _reflectionUtility.ExecuteMethod(plugin.Method, plugin.Instance, out bool error, bot, message, res.CappedCommand);
+                    _reflectionUtility.ExecuteDynamicMethod(plugin.Method, plugin.Instance, out bool error, 
+                        bot, message, res.CappedCommand, message.User, message.Group,
+                        plugin, plugin.Command);
                     //Return the results of the plugin execution
                     return new PluginResult(error ? PluginResultType.Error : PluginResultType.Success, null, plugin);
                 }
@@ -83,10 +86,11 @@ namespace BotsDotNet.Handling
             return new PluginResult(PluginResultType.NotFound, null, null);
         }
 
-        public async Task<bool> IsInRole(string restricts, IBot bot, IMessage message, bool executeReject = false)
+        public async Task<bool> IsInRole(string restricts, IMessage message, bool executeReject = false)
         {
             if (string.IsNullOrEmpty(restricts))
                 return true;
+            var bot = message.Bot;
 
             Init();
 

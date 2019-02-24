@@ -59,7 +59,7 @@ namespace BotsDotNet.WebExTeams.Util
 
             var room = type == MessageType.Group ? await GetRoom(bot, msg.RoomId) : null;
 
-            var mesg = new Message(msg, user, room);
+            var mesg = new Message(msg, user, room, bot);
 
 
             if (msg.MentionedPeople != null && msg.MentionedPeople.Length > 0)

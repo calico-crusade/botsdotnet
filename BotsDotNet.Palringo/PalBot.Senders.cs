@@ -31,7 +31,7 @@ namespace BotsDotNet.Palringo
             return await packetWatcher.Subscribe<Response>((t) => t.MessageId == packet.MessageId);
         }
 
-        public Task<IGroup> GetGroup(string id)
+        public override Task<IGroup> GetGroup(string id)
         {
             if (!SubProfiling.Groups.ContainsKey(id))
                 return null;
@@ -39,13 +39,13 @@ namespace BotsDotNet.Palringo
             return Task.FromResult((IGroup)SubProfiling.Groups[id]);
         }
 
-        public async Task<IUser[]> GetGroupUsers(string id)
+        public override async Task<IUser[]> GetGroupUsers(string id)
         {
             var group = (Group)await GetGroup(id);
             return group == null ? null : SubProfiling.GroupUsers[group].ToArray();
         }
 
-        public async Task<IUser> GetUser(string id)
+        public override async Task<IUser> GetUser(string id)
         {
             if (SubProfiling.Users.ContainsKey(id))
                 return SubProfiling.Users[id];
@@ -77,12 +77,7 @@ namespace BotsDotNet.Palringo
                 Nickname = ""
             };
         }
-
-        public async Task<IUser[]> GetUsers(params string[] ids)
-        {
-            return await Task.WhenAll(ids.Select(t => GetUser(t)));
-        }
-
+         
         private async Task<Response> SendMessage(MessageType target, DataType type, string id, byte[] data)
         {
             var packet = packetTemplates.Message(target, type, id, data);
@@ -109,88 +104,48 @@ namespace BotsDotNet.Palringo
             return send;
         }
 
-        public async Task<IMessageResponse> Message(IMessage message)
-        {
-            return await SendMessage(message.MessageType, message.ContentType.FromMimeType(), message.GroupId, message.Content);
-        }
-
-        public async Task<IMessageResponse> GroupMessage(string id, string message)
+        public override async Task<IMessageResponse> GroupMessage(string id, string message)
         {
             return await SendMessage(MessageType.Group, DataType.Text, id, message);
         }
 
-        public async Task<IMessageResponse> GroupMessage(string groupid, Bitmap image)
+        public override async Task<IMessageResponse> GroupMessage(string groupid, Bitmap image)
         {
-            return await GroupMessage(groupid, image.ToByteArray());
+            return await GroupMessage(groupid, image.ToByteArray(), "");
         }
 
-        public async Task<IMessageResponse> GroupMessage(string groupid, byte[] data)
+        public override async Task<IMessageResponse> GroupMessage(string groupid, string content, Bitmap image)
+        {
+            await GroupMessage(groupid, image.ToByteArray(), "");
+            return await GroupMessage(groupid, content);
+        }
+
+        public override async Task<IMessageResponse> GroupMessage(string groupid, byte[] data, string filename)
         {
             return await SendMessage(MessageType.Group, DataType.Image, groupid, data);
         }
 
-        public async Task<IMessageResponse> PrivateMessage(string id, string message)
+        public override async Task<IMessageResponse> PrivateMessage(string id, string message)
         {
             return await SendMessage(MessageType.Private, DataType.Text, id, message);
         }
 
-        public async Task<IMessageResponse> PrivateMessage(string userid, Bitmap image)
+        public override async Task<IMessageResponse> PrivateMessage(string userid, Bitmap image)
         {
-            return await PrivateMessage(userid, image.ToByteArray());
+            return await PrivateMessage(userid, image.ToByteArray(), "");
         }
 
-        public async Task<IMessageResponse> PrivateMessage(string id, byte[] data)
+        public override async Task<IMessageResponse> PrivateMessage(string userid, string content, Bitmap image)
+        {
+            await PrivateMessage(userid, image.ToByteArray(), "");
+            return await PrivateMessage(userid, content);
+        }
+
+        public override async Task<IMessageResponse> PrivateMessage(string id, byte[] data, string filename)
         {
             return await SendMessage(MessageType.Private, DataType.Image, id, data);
         }
-
-        public async Task<IMessageResponse> Reply(IMessage message, string contents)
-        {
-            return await SendMessage(message.MessageType, DataType.Text, message.ReturnAddress, contents);
-        }
-
-        public async Task<IMessageResponse> Reply(IMessage message, Bitmap image)
-        {
-            return await SendMessage(message.MessageType, DataType.Image, message.ReturnAddress, image.ToByteArray());
-        }
-
-        public async Task<IMessageResponse> Reply(IMessage message, byte[] data)
-        {
-            return await SendMessage(message.MessageType, DataType.Image, message.ReturnAddress, data);
-        }
-
-        public async Task<IMessage> NextGroupMessage(string groupid)
-        {
-            return await NextMessage(t => t.MessageType == MessageType.Group && t.GroupId == groupid);
-        }
-
-        public async Task<IMessage> NextGroupMessage(string groupid, string userid)
-        {
-            return await NextMessage(t => t.MessageType == MessageType.Group && t.UserId == userid && t.GroupId == groupid);
-        }
-
-        public async Task<IMessage> NextPrivateMessage(string userid)
-        {
-            return await NextMessage(t => t.MessageType == MessageType.Private && t.UserId == userid);
-        }
-
-        public async Task<IMessage> NextMessage(Func<IMessage, bool> predicate)
-        {
-            var packet = await packetWatcher.Subscribe<MessagePacket>(t =>
-            {
-                var p = OnPacketFound(t, predicate);
-                p.Wait();
-                return p.Result;
-            });
-
-            return await Message(packet);
-        }
-
-        private async Task<bool> OnPacketFound(MessagePacket packet, Func<IMessage, bool> pred)
-        {
-            return pred(await Message(packet));
-        }
-
+        
         public async Task<bool> Login(string email, string password,
             AuthStatus status = AuthStatus.Online,
             DeviceType device = DeviceType.PC,
@@ -315,7 +270,7 @@ namespace BotsDotNet.Palringo
         {
             var user = await GetUser(packet.UserId);
             var group = packet.MesgType == MessageType.Group ? (await GetGroup(packet.GroupId)) : null;
-            return new Message(packet, user, group);
+            return new Message(packet, user, group, this);
         }
     }
 }

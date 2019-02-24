@@ -32,7 +32,7 @@ namespace BotsDotNet.WebExTeams.WebTest
                 app.UseDeveloperExceptionPage();
             }
 
-            app.StartSparkBot(bot);
+            app.StartSparkBot(bot.RegisterTestPlugin());
             app.UseMvc();
         }
     }

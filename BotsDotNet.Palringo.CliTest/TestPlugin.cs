@@ -9,7 +9,7 @@ namespace BotsDotNet.Palringo.CliTest
         {
             await bot.Reply(message, "Hello world! " + cmd);
 
-            var msg = await bot.NextGroupMessage(message.GroupId);
+            var msg = await bot.NextMessage(message.GroupId);
 
             await bot.Reply(message, "Well damn, " + message.User.Nickname + " - Nice " + msg.Content);
         }

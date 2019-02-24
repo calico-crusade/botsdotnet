@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,12 +11,12 @@ namespace BotsDotNet.WebExTeams
 
     public partial class SparkBot
     {
-        public async Task<IGroup> GetGroup(string groupid)
+        public override async Task<IGroup> GetGroup(string groupid)
         {
             return await cacheUtility.GetRoom(this, groupid);
         }
 
-        public async Task<IUser[]> GetGroupUsers(string groupid)
+        public override async Task<IUser[]> GetGroupUsers(string groupid)
         {
             return (await GetMembership(groupid)).Select(t => t.Key).ToArray();
         }
@@ -33,74 +32,41 @@ namespace BotsDotNet.WebExTeams
             return users.Select(t => new KeyValuePair<IUser, Membership>(t, memberships.FirstOrDefault(a => a.PersonId == t.Id))).ToArray();
         }
 
-        public async Task<IUser> GetUser(string userid)
+        public override async Task<IUser> GetUser(string userid)
         {
             return await cacheUtility.GetUser(this, userid);
         }
-
-        public Task<IUser[]> GetUsers(params string[] userids)
-        {
-            return Task.WhenAll(userids.Select(t => GetUser(t)));
-        }
-
+        
         public async Task<IMessageResponse> GroupMessage(string id, string markdown, MemoryFile file)
         {
             var msg = await Connection.CreateFileMessageAsync(roomId: id, markdown: markdown, file: file);
             return new MessageResponse(msg);
         }
 
-        public async Task<IMessageResponse> GroupMessage(string groupid, string contents)
+        public override async Task<IMessageResponse> GroupMessage(string groupid, string contents)
         {
             var msg = await Connection.CreateMessageAsync(roomId: groupid, markdown: contents);
             return new MessageResponse(msg);
         }
 
-        public async Task<IMessageResponse> GroupMessage(string groupid, Bitmap image)
+        public override async Task<IMessageResponse> GroupMessage(string groupid, Bitmap image)
         {
             return await GroupMessage(groupid, "", image.FileFromImage());
         }
 
-        public async Task<IMessageResponse> GroupMessage(string groupid, byte[] data)
+        public override async Task<IMessageResponse> GroupMessage(string groupid, string content, Bitmap image)
+        {
+            return await GroupMessage(groupid, content, image.FileFromImage());
+        }
+
+        public override async Task<IMessageResponse> GroupMessage(string groupid, byte[] data, string filename)
         {
             var file = new MemoryFile
             {
                 Content = data,
-                FileName = "somefile.dat"
+                FileName = filename
             };
             return await GroupMessage(groupid, "", file);
-        }
-
-        public async Task<IMessageResponse> Message(IMessage message)
-        {
-            if (message.MessageType == MessageType.Group)
-                return await GroupMessage(message.ReturnAddress, message.Content);
-
-            return await PrivateMessage(message.ReturnAddress, message.Content);
-        }
-
-        public async Task<IMessage> NextGroupMessage(string groupid)
-        {
-            return await NextMessage(t => t.MessageType == MessageType.Group && t.GroupId == groupid);
-        }
-
-        public async Task<IMessage> NextGroupMessage(string groupid, string userid)
-        {
-            return await NextMessage(t => t.MessageType == MessageType.Group && t.UserId == userid && t.GroupId == groupid);
-        }
-
-        public async Task<IMessage> NextMessage(Func<IMessage, bool> predicate)
-        {
-            var task = new TaskCompletionSource<Message>();
-
-            if (!awaitedMessages.TryAdd(predicate, task))
-                return null;
-
-            return await awaitedMessages[predicate].Task;
-        }
-
-        public async Task<IMessage> NextPrivateMessage(string userid)
-        {
-            return await NextMessage(t => t.MessageType == MessageType.Private && t.UserId == userid);
         }
 
         public async Task<IMessageResponse> PrivateMessage(string id, string markdown, MemoryFile file)
@@ -109,23 +75,28 @@ namespace BotsDotNet.WebExTeams
             return new MessageResponse(msg);
         }
 
-        public async Task<IMessageResponse> PrivateMessage(string userid, string contents)
+        public override async Task<IMessageResponse> PrivateMessage(string userid, string contents)
         {
             var msg = await Connection.CreateMessageAsync(toPersonId: userid, markdown: contents);
             return new MessageResponse(msg);
         }
 
-        public async Task<IMessageResponse> PrivateMessage(string userid, Bitmap image)
+        public override async Task<IMessageResponse> PrivateMessage(string userid, Bitmap image)
         {
             return await PrivateMessage(userid, "", image.FileFromImage());
         }
 
-        public async Task<IMessageResponse> PrivateMessage(string userid, byte[] data)
+        public override async Task<IMessageResponse> PrivateMessage(string userid, string content, Bitmap image)
+        {
+            return await PrivateMessage(userid, content, image.FileFromImage());
+        }
+
+        public override async Task<IMessageResponse> PrivateMessage(string userid, byte[] data, string filename)
         {
             var file = new MemoryFile
             {
                 Content = data,
-                FileName = "somefile.dat"
+                FileName = filename
             };
             return await PrivateMessage(userid, "", file);
         }
@@ -138,28 +109,5 @@ namespace BotsDotNet.WebExTeams
             return await PrivateMessage(message.ReturnAddress, markdown, file);
         }
 
-        public async Task<IMessageResponse> Reply(IMessage message, string contents)
-        {
-            if (message.MessageType == MessageType.Group)
-                return await GroupMessage(message.ReturnAddress, contents);
-
-            return await PrivateMessage(message.ReturnAddress, contents);
-        }
-
-        public async Task<IMessageResponse> Reply(IMessage message, Bitmap image)
-        {
-            if (message.MessageType == MessageType.Group)
-                return await GroupMessage(message.ReturnAddress, image);
-
-            return await PrivateMessage(message.ReturnAddress, image);
-        }
-
-        public async Task<IMessageResponse> Reply(IMessage message, byte[] data)
-        {
-            if (message.MessageType == MessageType.Group)
-                return await GroupMessage(message.ReturnAddress, data);
-
-            return await PrivateMessage(message.ReturnAddress, data);
-        }
     }
 }

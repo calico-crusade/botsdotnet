@@ -26,7 +26,9 @@ namespace BotsDotNet.Palringo.CliTest
 
         public Program()
         {
-            Bot = PalBot.Create().UseConsoleLogging();
+            Bot = PalBot.Create()
+                        .UseConsoleLogging()
+                        .RegisterTestPlugin();
         }
 
         public async Task Start(string email, string password)
