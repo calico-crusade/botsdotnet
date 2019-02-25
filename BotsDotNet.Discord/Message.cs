@@ -20,8 +20,13 @@ namespace BotsDotNet.Discord
             TimeStamp = message.CreatedAt.DateTime;
             UserId = message.Author.Id.ToString();
             GroupId = message?.Channel?.Id.ToString();
-            ContentType = "text";
+            MimeType = "text";
             Bot = bot;
+            ContentType = ContentType.Text | ContentType.Markup | ContentType.Rich;
+
+            if (message.Attachments != null && 
+                message.Attachments.Count > 0)
+                ContentType |= ContentType.File;
         }
     }
 }

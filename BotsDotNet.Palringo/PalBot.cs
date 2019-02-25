@@ -152,7 +152,6 @@ namespace BotsDotNet.Palringo
                 return;
             }
 
-
             //Notify any attached processes that a packet has been received.
             ((BroadcastUtility)On).BroadcastPacketReceived(packet.Clone());
 
@@ -167,9 +166,6 @@ namespace BotsDotNet.Palringo
             
             var om = (MessagePacket)map;
 
-            if (om.ContentType != DataType.Text)
-                return;
-            
             var msg = await Message(om);
 
             await MessageReceived(msg);

@@ -21,6 +21,18 @@
             TimeStamp = message.Created;
             UserId = message.PersonId;
             GroupId = message.RoomId;
+            MimeType = "text";
+            ContentType = ContentType.Text;
+
+            if (!string.IsNullOrEmpty(message.Markdown))
+                ContentType |= ContentType.Markup;
+
+            if (!string.IsNullOrEmpty(message.Html))
+                ContentType |= ContentType.Rich;
+
+            if (message.Files != null &&
+                message.Files.Length > 0)
+                ContentType |= ContentType.File;
         }
     }
 }

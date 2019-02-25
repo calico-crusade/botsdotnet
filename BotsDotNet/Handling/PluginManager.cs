@@ -38,6 +38,11 @@ namespace BotsDotNet.Handling
             Init();
             var bot = message.Bot;
 
+            if (!message.ContentType.HasFlag(ContentType.Text) &&
+                !message.ContentType.HasFlag(ContentType.Markup) &&
+                !message.ContentType.HasFlag(ContentType.Other))
+                return new PluginResult(PluginResultType.NotTextMessage, null, null);
+
             if (!MatchesPrefix(message))
                 return new PluginResult(PluginResultType.NotFound, null, null);
 
@@ -226,7 +231,10 @@ namespace BotsDotNet.Handling
 
         public IEnumerable<ReflectedPlugin> GetPlugins()
         {
-            var plugins = _reflectionUtility.GetAllTypesOf<IPlugin>();
+            var plugins = _reflectionUtility.GetAllTypesOf<IPlugin>().ToArray();
+
+            if (plugins.Length <= 0)
+                Console.WriteLine("No plugins found.");
             
             foreach (var plugin in plugins)
             {

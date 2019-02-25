@@ -11,11 +11,12 @@
             TimeStamp = packet.Timestamp;
             UserId = packet.UserId.ToString();
             GroupId = packet.GroupId?.ToString();
-            ContentType = packet.MimeType;
+            MimeType = packet.MimeType;
             User = user;
             Group = group;
             Original = packet;
             Bot = bot;
+            ContentType = (ContentType)(int)packet.ContentType;
         }
     }
 }

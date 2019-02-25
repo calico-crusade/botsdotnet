@@ -29,10 +29,12 @@ namespace BotsDotNet.Palringo.Networking.Handling
         private void LoadHandlers()
         {
             packetHandlers = new List<PacketHandlers>();
+            
+            var handlers = reflection.GetTypes(typeof(IPacketHandler))
+                                     .Select(t => (IPacketHandler)reflection.GetInstance(t))
+                                     .ToArray();
 
-            var handlers = reflection.GetAllTypesOf<IPacketHandler>();
-
-            foreach(var handler in handlers)
+            foreach (var handler in handlers)
             {
                 var hndlr = new PacketHandlers
                 {
@@ -77,7 +79,7 @@ namespace BotsDotNet.Palringo.Networking.Handling
                 LoadHandlers();
 
             var handlers = packetHandlers.Where(t => t.Handlers.ContainsKey(packet.Command.ToUpper()));
-
+            
             foreach (var handler in handlers)
             {
                 var method = handler.Handlers[packet.Command.ToUpper()];
@@ -91,7 +93,6 @@ namespace BotsDotNet.Palringo.Networking.Handling
                     broadcast.BroadcastException(ex, $"Error processing handler {method.Name} for {packet.Command.ToUpper()}");
                 }
             }
-
         }
 
         private class PacketHandlers

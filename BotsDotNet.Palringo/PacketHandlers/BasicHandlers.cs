@@ -1,4 +1,6 @@
-﻿namespace BotsDotNet.Palringo.PacketHandlers
+﻿using System;
+
+namespace BotsDotNet.Palringo.PacketHandlers
 {
     using Networking;
     using Networking.Handling;
@@ -24,7 +26,14 @@
 
         public async void PingHandler(PingRequest ping, PalBot bot)
         {
-            var sent = await bot.Write(templates.Ping());
+            try
+            {
+                var sent = await bot.Write(templates.Ping());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
 
         public void SubProfileHandler(SubProfilePacket sub, PalBot bot)
@@ -44,7 +53,7 @@
                 return;
 
             var id = map.GetValueInt("sub-id").ToString();
-
+            
             if (!((PalBot)bot).SubProfiling.Users.ContainsKey(id))
                 ((PalBot)bot).SubProfiling.Users.Add(id, new User());
 
