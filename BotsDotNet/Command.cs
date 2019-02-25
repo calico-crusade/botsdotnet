@@ -9,6 +9,7 @@ namespace BotsDotNet
         string Restriction { get; }
         string Description { get; }
         string Platform { get; }
+        string PluginSet { get; }
     }
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
@@ -19,6 +20,7 @@ namespace BotsDotNet
         public virtual string Restriction { get; set; } = null;
         public virtual string Description { get; set; } = null;
         public virtual string Platform { get; set; } = null;
+        public virtual string PluginSet { get; set; } = null;
 
         public Command(string comparitor)
         {

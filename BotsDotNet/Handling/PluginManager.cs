@@ -19,8 +19,8 @@ namespace BotsDotNet.Handling
 
     public class PluginManager : IPluginManager
     {
-        private const string RESTRICTION_SPLITTER = ",";
-        private const string PLATFORM_AGNOSTIC_IND = "_";
+        public const string RESTRICTION_SPLITTER = ",";
+        public const string PLATFORM_AGNOSTIC_IND = "_";
 
         private static List<ReflectedPlugin> plugins = null;
         private static Dictionary<Type, IComparitorProfile> profiles = null;

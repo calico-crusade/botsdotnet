@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace BotsDotNet.Handling
 {
@@ -16,6 +17,19 @@ namespace BotsDotNet.Handling
         {
             var msg = message.Content.ToLower().Trim();
             var cmd = command.Comparitor.ToLower().Trim();
+
+            if (!string.IsNullOrEmpty(bot.PluginSets) && 
+                !string.IsNullOrEmpty(command.PluginSet))
+            {
+                var sets = bot.PluginSets.Split(new[] { PluginManager.RESTRICTION_SPLITTER }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (!sets.Any(t => t.ToLower().Trim() == bot.PluginSets.ToLower().Trim()))
+                    return new ComparitorResult
+                    {
+                        IsMatch = false,
+                        CappedCommand = msg
+                    };
+            }
 
             if (!msg.StartsWith(cmd))
                 return new ComparitorResult
