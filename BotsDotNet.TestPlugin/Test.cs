@@ -1,4 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace BotsDotNet.TestPlugin
@@ -51,6 +55,33 @@ namespace BotsDotNet.TestPlugin
                 omsg += $"\r\n{(bot.Prefix ?? "")}{plug.Comparitor} ~ {plug.Description}";
 
             await msg.Reply(omsg);
+        }
+
+        [Command("image", Description = "Posts the image or file")]
+        public async Task ImageThing(IMessage msg, string cmd)
+        {
+            if (string.IsNullOrEmpty(cmd))
+            {
+                await msg.Reply("Please specify an image url");
+                return;
+            }
+
+            try
+            {
+                using (var wc = new WebClient())
+                {
+                    var data = await wc.DownloadDataTaskAsync(cmd);
+                    using (var ms = new MemoryStream(data))
+                    {
+                        var image = new Bitmap(ms);
+                        await msg.Reply(image);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                await msg.Reply("Error occurred: " + e.Message);
+            }
         }
     }
 }
