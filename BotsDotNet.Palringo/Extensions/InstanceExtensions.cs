@@ -2,6 +2,9 @@
 
 namespace BotsDotNet.Palringo
 {
+    using Util;
+    using Networking;
+
     public static class InstanceExtensions
     {
         public static PalBot UseConsoleLogging(this PalBot bot, bool logUnhandled = false)
@@ -10,8 +13,11 @@ namespace BotsDotNet.Palringo
                 bot.On.UnhandledPacket += (p) =>
                     Extensions.ColouredConsole($"^w[^g{DateTime.Now.ToString("yyyy-MM-dd HH:mm")}^w] ^rUNHANDLED ^w{p.Command}");
 
-            bot.On.PacketReceived += (p) =>
+            //bot.On.PacketReceived += (p) =>
+            ((BroadcastUtility)bot.On).PacketParsed += (c, p) => 
                 Extensions.ColouredConsole($"^w[^g{DateTime.Now.ToString("yyyy-MM-dd HH:mm")}^w] ^c<< ^w{p.Command} - ^b{p.ContentLength}");
+
+            ((BroadcastUtility)bot.On).PacketParsed += (c, p) => HandlePacketWrite(p);
 
             bot.On.PacketSent += (p) =>
                 Extensions.ColouredConsole($"^w[^g{DateTime.Now.ToString("yyyy-MM-dd HH:mm")}^w] ^e>> ^w{p.Command} - ^b{p.ContentLength}");
@@ -27,6 +33,15 @@ namespace BotsDotNet.Palringo
 
             return bot;
         }
+
+        private static void HandlePacketWrite(IPacket packet)
+        {
+            if (packet.Command != "URL")
+                return;
+
+            Console.WriteLine(packet.ToString());
+        }
+
         public static PalBot AddAuth(this PalBot bot, params string[] ids)
         {
             Restrictions.AuthRestriction.AuthorizedUsers.AddRange(ids);

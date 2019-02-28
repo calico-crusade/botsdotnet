@@ -11,7 +11,7 @@ namespace BotsDotNet.Discord
 
     public partial class DiscordBot : BotImpl
     {
-        public const string PLATFORM = "Discord";
+        public const string PLATFORM = BotPlatform.Discord;
         public DiscordSocketClient Connection;
 
         public override IUser Profile => new User(Connection.CurrentUser);

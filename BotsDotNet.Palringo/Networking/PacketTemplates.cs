@@ -12,6 +12,7 @@ namespace BotsDotNet.Palringo.Networking
         IPacket Auth(byte[] password, AuthStatus status);
         IPacket Ping();
         IPacket UserInfo(string id);
+        IPacket GroupInfo(string id);
         IPacket Message(MessageType target, DataType type, string id, byte[] data);
         IPacket Message(MessageType target, DataType type, string id, string data);
         IPacket AvatarUpdate(byte[] data);
@@ -82,6 +83,20 @@ namespace BotsDotNet.Palringo.Networking
                 Payload = map.Serialize()
             };
         }
+
+        public IPacket GroupInfo(string id)
+        {
+            var map = new DataMap();
+            map.SetValue("action", "palringo_group_info");
+            map.SetValue("parameters", $"id={id}");
+
+            return new Packet
+            {
+                Command = "PROVIF QUERY",
+                Payload = map.Serialize()
+            };
+        }
+
 
         public IPacket Message(MessageType target, DataType type, string id, byte[] data)
         {

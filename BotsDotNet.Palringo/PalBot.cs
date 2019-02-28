@@ -18,7 +18,7 @@ namespace BotsDotNet.Palringo
     {
         public static string DefaultHost = "im.palringo.com";
         public static int DefaultPort = 12345;
-        public const string PLATFORM = "Palringo";
+        public const string PLATFORM = BotPlatform.Palringo;
 
         public override IUser Profile => SubProfiling.Profile;
         public override IGroup[] Groups => SubProfiling.Groups.Values.ToArray();

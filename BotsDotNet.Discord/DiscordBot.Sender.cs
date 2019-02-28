@@ -20,8 +20,22 @@ namespace BotsDotNet.Discord
 
         public override Task<IUser> GetUser(string userid)
         {
-            var user = Connection.GetUser(ulong.Parse(userid));
-            return Task.FromResult((IUser)new User(user));
+            if (ulong.TryParse(userid, out ulong id))
+            {
+                var u = Connection.GetUser(id);
+                return Task.FromResult((IUser)new User(u));
+            }
+
+            if (userid.Contains("#"))
+            {
+                var parts = userid.Split('#');
+                var name = string.Join("#", parts.Take(parts.Length - 2));
+                var desc = parts.Last();
+                var u = Connection.GetUser(name, desc);
+                return Task.FromResult((IUser)new User(u));
+            }
+
+            return Task.FromResult<IUser>(null);
         }
 
         public override async Task<IMessageResponse> GroupMessage(string groupid, string contents)

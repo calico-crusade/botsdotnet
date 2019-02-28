@@ -79,9 +79,9 @@ namespace BotsDotNet.Handling
                         return new PluginResult(PluginResultType.Restricted, null, null);
 
                     //Run the plugin
-                    _reflectionUtility.ExecuteDynamicMethod(plugin.Method, plugin.Instance, out bool error, 
+                    _reflectionUtility.ExecuteDynamicMethod(plugin.Method, plugin.Instance, out bool error,
                         bot, message, res.CappedCommand, message.User, message.Group,
-                        plugin.Instance, plugin.Command);
+                        plugin.Instance, plugin.Command, (BotPlatform)bot.Platform);
                     //Return the results of the plugin execution
                     return new PluginResult(error ? PluginResultType.Error : PluginResultType.Success, null, plugin);
                 }

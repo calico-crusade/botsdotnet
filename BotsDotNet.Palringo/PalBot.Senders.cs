@@ -31,12 +31,21 @@ namespace BotsDotNet.Palringo
             return await packetWatcher.Subscribe<Response>((t) => t.MessageId == packet.MessageId);
         }
 
-        public override Task<IGroup> GetGroup(string id)
+        public async override Task<IGroup> GetGroup(string id)
         {
-            if (!SubProfiling.Groups.ContainsKey(id))
+            if (SubProfiling.Groups.ContainsKey(id))
+                return SubProfiling.Groups[id];
+
+            var pack = packetTemplates.GroupInfo(id);
+
+            if (!await Write(pack))
                 return null;
 
-            return Task.FromResult((IGroup)SubProfiling.Groups[id]);
+            var watcher = await packetWatcher.Subscribe<Response>(t => t.MessageId == pack.MessageId);
+
+            Console.WriteLine(watcher.ToString());
+
+            return null;
         }
 
         public override async Task<IUser[]> GetGroupUsers(string id)

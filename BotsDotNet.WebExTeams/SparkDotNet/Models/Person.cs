@@ -28,6 +28,4 @@ namespace BotsDotNet.WebExTeams.SparkDotNet
             return JsonConvert.SerializeObject(this);
         }
     }
-
-    
 }

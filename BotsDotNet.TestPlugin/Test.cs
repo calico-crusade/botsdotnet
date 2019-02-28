@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -21,19 +22,19 @@ namespace BotsDotNet.TestPlugin
             await msg.Reply($"I'm glad you're {answer.Content}");
         }
 
-        [Command("discord", Platform = "Discord", Description = "Hello discord!")]
+        [Command("discord", Platform = BotPlatform.Discord, Description = "Hello discord!")]
         public async Task DiscordTest(IMessage msg)
         {
             await msg.Reply("Hello Discord!");
         }
 
-        [Command("pal", Platform = "Palringo", Description = "Hello palringo!")]
+        [Command("pal", Platform = BotPlatform.Palringo, Description = "Hello palringo!")]
         public async Task PalringoTest(IMessage msg)
         {
             await msg.Reply("Hello Palringo!");
         }
 
-        [Command("spark", Platform = "Spark", Description = "Hello spark!")]
+        [Command("spark", Platform = BotPlatform.WebExTeams, Description = "Hello spark!")]
         public async Task WebExTeamsTest(IMessage msg)
         {
             await msg.Reply("Hello WebEx teams! Formally Spark!");
@@ -82,6 +83,22 @@ namespace BotsDotNet.TestPlugin
             {
                 await msg.Reply("Error occurred: " + e.Message);
             }
+        }
+        
+        [Command("info", Description = "Information Request")]
+        public async Task Info(IMessage msg, string cmd, IBot bot)
+        {
+            var group = cmd.Contains("-g");
+            cmd = cmd.Replace("-g", "").Trim();
+
+            var info = group ? (object)await bot.GetGroup(cmd) : await bot.GetUser(cmd);
+            await msg.Reply(JsonConvert.SerializeObject(info, Formatting.Indented));
+        }
+
+        [Command("plat", Description = "Shows the current platform")]
+        public async Task PlatformIndependent(IMessage msg, BotPlatform platform)
+        {
+            await msg.Reply("Hello from: " + platform);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace BotsDotNet.Palringo.CliTest
+namespace BotsDotNet.PalringoV3.CliTest
 {
     public class Program
     {
@@ -27,14 +27,13 @@ namespace BotsDotNet.Palringo.CliTest
         public Program()
         {
             Bot = PalBot.Create()
-                        .UseConsoleLogging()
                         .RegisterTestPlugin();
         }
 
         public async Task Start(string email, string password)
         {
             Bot.OnError += (e) => Console.WriteLine(e);
-            var success = await ((PalBot)Bot).Login(email, password, "!");
+            var success = await ((PalBot)Bot).Login(email, password);
 
             if (success)
             {
