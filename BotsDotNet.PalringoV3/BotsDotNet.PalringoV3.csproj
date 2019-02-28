@@ -160,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="BotsDotNet.PalringoV3.nupkg" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
