@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace BotsDotNet
 {
     using Handling;
+    using Registration;
 
     public delegate void ExceptionCarrier(Exception ex);
 
@@ -19,6 +20,8 @@ namespace BotsDotNet
         string Platform { get; }
         string Prefix { get; }
         string PluginSets { get; }
+
+        Register Commands { get; }
 
         Task<IMessage> NextMessage(Func<IMessage, bool> predicate);
         Task<IMessage> NextMessage(string groupid);
@@ -55,6 +58,8 @@ namespace BotsDotNet
         public abstract string Platform { get; }
         public virtual string Prefix { get; set; } = null;
         public virtual string PluginSets { get; set; } = null;
+
+        public Register Commands => new Register(pluginManager);
 
         private readonly IPluginManager pluginManager;
         private ConcurrentDictionary<Func<IMessage, bool>, TaskCompletionSource<IMessage>> awaitedMessages { get; set; }

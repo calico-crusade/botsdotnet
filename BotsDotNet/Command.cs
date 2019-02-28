@@ -5,11 +5,11 @@ namespace BotsDotNet
     public interface ICommand
     {
         string Comparitor { get; }
-        MessageType? MessageType { get; }
-        string Restriction { get; }
-        string Description { get; }
-        string Platform { get; }
-        string PluginSet { get; }
+        MessageType? MessageType { get; set; }
+        string Restriction { get; set; }
+        string Description { get; set; }
+        string Platform { get; set; }
+        string PluginSet { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]

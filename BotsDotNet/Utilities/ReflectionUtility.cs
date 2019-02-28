@@ -110,6 +110,9 @@ namespace BotsDotNet.Utilities
                 if (type.IsInterface || type.IsAbstract)
                     continue;
 
+                if (Attribute.IsDefined(type, typeof(NoDescpAttribute)))
+                    continue;
+
                 if (type.ImplementedInterfaces.Contains(implementedInterface))
                     yield return type;
             }
@@ -122,6 +125,9 @@ namespace BotsDotNet.Utilities
             {
                 foreach (var type in GetTypes(implementedInterface, ass, alreadyLoaded))
                 {
+                    if (Attribute.IsDefined(type, typeof(NoDescpAttribute)))
+                        continue;
+
                     yield return type;
                 }
             }

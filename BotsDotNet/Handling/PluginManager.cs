@@ -180,7 +180,8 @@ namespace BotsDotNet.Handling
             if (plugins != null)
                 return;
 
-            plugins = GetPlugins().OrderByDescending(t => t.Command.Comparitor.Length).ToList();
+            plugins = GetPlugins().ToList();
+            OrderPlugins();
         }
 
         public void LoadProfiles()
@@ -194,6 +195,9 @@ namespace BotsDotNet.Handling
 
             foreach(var profile in profs)
             {
+                if (Attribute.IsDefined(profile.GetType(), typeof(NoDescpAttribute)))
+                    continue;
+
                 if (profiles.ContainsKey(profile.AttributeType))
                     throw new Exception($"Duplicate Comparitor Profile loaded: {profile.AttributeType.Name}");
 
@@ -210,6 +214,12 @@ namespace BotsDotNet.Handling
 
             foreach(var restriction in _reflectionUtility.GetAllTypesOf<IRestriction>())
             {
+                if (string.IsNullOrEmpty(restriction.Name))
+                    continue;
+
+                if (Attribute.IsDefined(restriction.GetType(), typeof(NoDescpAttribute)))
+                    continue;
+
                 var plat = restriction.Platform?.Split(new[] { RESTRICTION_SPLITTER }, StringSplitOptions.RemoveEmptyEntries);
 
                 if (plat == null || plat.Length <= 0)
@@ -239,6 +249,8 @@ namespace BotsDotNet.Handling
             foreach (var plugin in plugins)
             {
                 var type = plugin.GetType();
+                if (Attribute.IsDefined(type, typeof(NoDescpAttribute)))
+                    continue;
 
                 foreach(var method in type.GetMethods())
                 {
@@ -275,6 +287,53 @@ namespace BotsDotNet.Handling
                     }
                 }
             }
+        }
+
+        public void AddPlugin(ReflectedPlugin plugin)
+        {
+            Init();
+
+            var exists = plugins.Any(t => t.Command.Comparitor == plugin.Command.Comparitor &&
+                                          t.Command.MessageType == plugin.Command.MessageType &&
+                                          t.Command.Platform == plugin.Command.Platform &&
+                                          t.Command.PluginSet == plugin.Command.PluginSet &&
+                                          t.Command.Restriction == plugin.Command.Restriction);
+
+            if (exists)
+                throw new Exception("Plugin already exists with the same layout!");
+
+            plugins.Add(plugin);
+            OrderPlugins();
+        }
+
+        public void AddRestriction(IRestriction restriction)
+        {
+            Init();
+            if (!restrictions.ContainsKey(restriction.Platform))
+                restrictions.Add(restriction.Platform, new Dictionary<string, IRestriction>());
+
+            if (restrictions[restriction.Platform].ContainsKey(restriction.Name.ToLower().Trim()))
+                throw new Exception("Restriction already exists with this name!");
+
+            restrictions[restriction.Platform].Add(restriction.Name.ToLower().Trim(), restriction);
+        }
+
+        public void AddComparitor(IComparitorProfile comparitor)
+        {
+            Init();
+
+            if (!profiles.ContainsKey(comparitor.AttributeType))
+                throw new Exception("Comparitor profile already exists!");
+
+            profiles.Add(comparitor.AttributeType, comparitor);
+        }
+
+        public void OrderPlugins()
+        {
+            if (plugins == null)
+                return;
+
+            plugins = plugins.OrderByDescending(t => t.Command.Comparitor.Length).ToList();
         }
     }
 }
