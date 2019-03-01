@@ -15,7 +15,7 @@ namespace BotsDotNet.Twitch
         public TwitchAPI Api { get; private set; }
         public string Username { get; private set; }
         public string Token { get; private set; }
-        public bool Debug { get; set; } = true;
+        public bool Debug { get; set; } = false;
 
         public override IUser Profile => new User(Connection.TwitchUsername);
 
