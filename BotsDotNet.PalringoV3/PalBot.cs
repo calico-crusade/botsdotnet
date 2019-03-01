@@ -45,7 +45,7 @@ namespace BotsDotNet.PalringoV3
 
                 var welcome = await On<Welcome>("welcome");
 
-                _user = welcome.LoggedInUser ?? await WritePacket<User>(packetTemplate.Login(email, password));
+                _user = (OutUser)(welcome.LoggedInUser ?? await WritePacket<User>(packetTemplate.Login(email, password)));
 
                 OnLoginSuccess();
                 return true;
@@ -64,7 +64,7 @@ namespace BotsDotNet.PalringoV3
                 On<BaseMessage>("message send", HandleMessageRecieved);
                 await WritePacket(packetTemplate.PrivateMessageSubscribe());
 
-                _groups = await WritePacket<Group[]>(packetTemplate.GroupList());
+                _groups = (await WritePacket<Group[]>(packetTemplate.GroupList())).Cast<OutGroup>().ToArray();
 
                 var ids = _groups.Select(t => t.Id).ToArray();
                 await WritePacket(packetTemplate.GroupMessageSubscribe(ids));

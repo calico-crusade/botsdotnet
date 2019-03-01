@@ -29,7 +29,7 @@ namespace BotsDotNet.PalringoV3
             if (_users.ContainsKey(userid))
                 return _users[userid];
 
-            var user = await bot.WritePacket<User>(packetTemplate.UserProfile(userid));
+            var user = (OutUser)await bot.WritePacket<User>(packetTemplate.UserProfile(userid));
             _users.Add(userid, user);
             return user;
         }
@@ -39,7 +39,7 @@ namespace BotsDotNet.PalringoV3
             if (_groups.ContainsKey(groupid))
                 return _groups[groupid];
 
-            var group = await bot.WritePacket<Group>(packetTemplate.GroupProfile(groupid));
+            var group = (OutGroup)await bot.WritePacket<Group>(packetTemplate.GroupProfile(groupid));
             _groups.Add(groupid, group);
             return group;
         }

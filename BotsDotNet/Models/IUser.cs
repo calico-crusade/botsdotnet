@@ -1,6 +1,6 @@
 ﻿namespace BotsDotNet
 {
-    public interface IUser
+    public interface IUser : IBdnModel
     {
         string Id { get; }
         string Nickname { get; }

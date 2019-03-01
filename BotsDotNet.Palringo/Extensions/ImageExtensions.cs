@@ -80,7 +80,7 @@ namespace BotsDotNet.Palringo
             }
         }
 
-        public static async Task<Bitmap> Avatar(this User user)
+        public static async Task<Bitmap> Avatar(this OutUser user)
         {
             return await UserAvatar(user.Id);
         }

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -13,10 +12,10 @@ namespace BotsDotNet.TestPlugin
     public class Test : IPlugin
     {
         [Command("hello", Description = "Hello world!")]
-        public async Task TestMethod(IMessage msg, IUser user)
+        public async Task TestMethod(IMessage msg, IUser user, IBot bot)
         {
+            await bot.PrivateMessage(msg.User.Id, "Hey there buddy!");
             await msg.Reply($"Hello there {user.Nickname}. How are you doing today?");
-
             var answer = await msg.NextMessage();
 
             await msg.Reply($"I'm glad you're {answer.Content}");
@@ -91,8 +90,15 @@ namespace BotsDotNet.TestPlugin
             var group = cmd.Contains("-g");
             cmd = cmd.Replace("-g", "").Trim();
 
-            var info = group ? (object)await bot.GetGroup(cmd) : await bot.GetUser(cmd);
-            await msg.Reply(JsonConvert.SerializeObject(info, Formatting.Indented));
+            if (group)
+            {
+                var g = await bot.GetGroup(msg.Group.Id);
+                await msg.Reply($"Group: {g.Name} ({g.Id})");
+                return;
+            }
+
+            var info = await bot.GetUser(msg.User.Id);
+            await msg.Reply($"User: {info.Nickname} ({info.Id})");
         }
 
         [Command("plat", Description = "Shows the current platform")]

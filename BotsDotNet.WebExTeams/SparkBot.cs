@@ -56,7 +56,7 @@ namespace BotsDotNet.WebExTeams
             _friendlyName = name;
             _connection = new Spark(token);
 
-            _prof = await Connection.GetMeAsync();
+            _prof = (OutUser)await Connection.GetMeAsync();
             await HandleHooks();
         }
 

@@ -2,7 +2,7 @@
 
 namespace BotsDotNet.Discord
 {
-    public class User : IUser
+    public class User : BdnModel, IUser
     {
         public string Id { get; set; }
 
@@ -11,16 +11,13 @@ namespace BotsDotNet.Discord
         public string Status { get; set; }
 
         public string[] Attributes { get; set; }
-
-        public SocketUser Original { get; set; }
-
-        public User(SocketUser user)
+        
+        public User(SocketUser user) : base(user)
         {
             Id = user.Id.ToString();
             Nickname = user.Username;
             Status = user.Status.ToString();
             Attributes = new string[0];
-            Original = user;
         }
     }
 }

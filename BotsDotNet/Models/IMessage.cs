@@ -7,7 +7,7 @@ namespace BotsDotNet
     /// <summary>
     /// Represents a message sent by any platform
     /// </summary>
-    public interface IMessage
+    public interface IMessage : IBdnModel
     {
         /// <summary>
         /// Whether the message was targeting a private or group chat.
@@ -93,7 +93,7 @@ namespace BotsDotNet
         Task<IMessage> NextMessage();
     }
 
-    public abstract class MessageImpl : IMessage
+    public abstract class MessageImpl : BdnModel, IMessage
     {
         public virtual MessageType MessageType { get; set; }
 
@@ -116,6 +116,8 @@ namespace BotsDotNet
         public virtual IBot Bot { get; set; }
 
         public virtual string ReturnAddress => MessageType == MessageType.Group ? GroupId : UserId;
+
+        public MessageImpl(object original) : base(original) { }
 
         public virtual Task<IMessageResponse> Reply(string content) => Bot.Reply(this, content);
 

@@ -24,7 +24,7 @@ namespace BotsDotNet.WebExTeams.Util
             if (Users.ContainsKey(id))
                 return Users[id];
 
-            var prsn = await bot.Connection.GetPersonAsync(id);
+            var prsn = (OutUser)await bot.Connection.GetPersonAsync(id);
 
             if (prsn == null)
                 return null;
@@ -57,7 +57,7 @@ namespace BotsDotNet.WebExTeams.Util
             var type = msg.RoomType == "direct" ? MessageType.Private : MessageType.Group;
             var user = await GetUser(bot, msg.PersonId);
 
-            var room = type == MessageType.Group ? await GetRoom(bot, msg.RoomId) : null;
+            var room = (type == MessageType.Group ? (OutGroup)await GetRoom(bot, msg.RoomId) : null);
 
             var mesg = new Message(msg, user, room, bot);
 

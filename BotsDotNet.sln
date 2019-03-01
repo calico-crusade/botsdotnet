@@ -25,6 +25,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotsDotNet.PalringoV3", "Bo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotsDotNet.PalringoV3.CliTest", "BotsDotNet.PalringoV3.CliTest\BotsDotNet.PalringoV3.CliTest.csproj", "{F067D41E-5E9C-47A9-85ED-54C9B37A700C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotsDotNet.Twitch", "BotsDotNet.Twitch\BotsDotNet.Twitch.csproj", "{A21400A9-4E1A-4017-991A-FA5E045C63F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotsDotNet.Twitch.CliTest", "BotsDotNet.Twitch.CliTest\BotsDotNet.Twitch.CliTest.csproj", "{23C256A6-54FC-41C5-9523-1AA0DC85E254}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +75,14 @@ Global
 		{F067D41E-5E9C-47A9-85ED-54C9B37A700C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F067D41E-5E9C-47A9-85ED-54C9B37A700C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F067D41E-5E9C-47A9-85ED-54C9B37A700C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A21400A9-4E1A-4017-991A-FA5E045C63F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A21400A9-4E1A-4017-991A-FA5E045C63F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A21400A9-4E1A-4017-991A-FA5E045C63F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A21400A9-4E1A-4017-991A-FA5E045C63F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23C256A6-54FC-41C5-9523-1AA0DC85E254}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23C256A6-54FC-41C5-9523-1AA0DC85E254}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23C256A6-54FC-41C5-9523-1AA0DC85E254}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23C256A6-54FC-41C5-9523-1AA0DC85E254}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +93,7 @@ Global
 		{C1074CDF-F665-41CC-A442-70DDCC99EA0D} = {AD33176A-53BA-4396-95F3-FB92426B6F52}
 		{BE2D57F9-E814-4854-9BFC-5FCA8FC95246} = {AD33176A-53BA-4396-95F3-FB92426B6F52}
 		{F067D41E-5E9C-47A9-85ED-54C9B37A700C} = {AD33176A-53BA-4396-95F3-FB92426B6F52}
+		{23C256A6-54FC-41C5-9523-1AA0DC85E254} = {AD33176A-53BA-4396-95F3-FB92426B6F52}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BF828D7F-4679-4B88-A006-BEBC80AED7FB}

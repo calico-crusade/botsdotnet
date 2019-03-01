@@ -34,7 +34,7 @@ namespace BotsDotNet.Palringo
         public async override Task<IGroup> GetGroup(string id)
         {
             if (SubProfiling.Groups.ContainsKey(id))
-                return SubProfiling.Groups[id];
+                return (OutGroup)SubProfiling.Groups[id];
 
             var pack = packetTemplates.GroupInfo(id);
 
@@ -51,13 +51,13 @@ namespace BotsDotNet.Palringo
         public override async Task<IUser[]> GetGroupUsers(string id)
         {
             var group = (Group)await GetGroup(id);
-            return group == null ? null : SubProfiling.GroupUsers[group].ToArray();
+            return group == null ? null : SubProfiling.GroupUsers[group].Cast<OutUser>().ToArray();
         }
 
         public override async Task<IUser> GetUser(string id)
         {
             if (SubProfiling.Users.ContainsKey(id))
-                return SubProfiling.Users[id];
+                return (OutUser)SubProfiling.Users[id];
 
             var pack = packetTemplates.UserInfo(id);
 
@@ -78,23 +78,19 @@ namespace BotsDotNet.Palringo
             }
 
             if (SubProfiling.Users.ContainsKey(id))
-                return SubProfiling.Users[id];
+                return (OutUser)SubProfiling.Users[id];
 
-            return new User
-            {
-                Id = id,
-                Nickname = ""
-            };
+            return null;
         }
          
-        private async Task<Response> SendMessage(MessageType target, DataType type, string id, byte[] data)
+        private async Task<IMessageResponse> SendMessage(MessageType target, DataType type, string id, byte[] data)
         {
             var packet = packetTemplates.Message(target, type, id, data);
 
-            return new Response(await Write(packet));
+            return (OutResponseMessage)new Response(await Write(packet));
         }
 
-        private async Task<Response> SendMessage(MessageType target, DataType type, string id, string data)
+        private async Task<IMessageResponse> SendMessage(MessageType target, DataType type, string id, string data)
         {
             var packet = packetTemplates.Message(target, type, id, data);
 
@@ -102,7 +98,7 @@ namespace BotsDotNet.Palringo
 
             if (send == null)
             {
-                return new Response
+                return (OutResponseMessage)new Response
                 {
                     Type = Type.Code,
                     What = What.MESG,
@@ -110,7 +106,7 @@ namespace BotsDotNet.Palringo
                 };
             }
 
-            return send;
+            return (OutResponseMessage)send;
         }
 
         public override async Task<IMessageResponse> GroupMessage(string id, string message)

@@ -4,14 +4,11 @@ namespace BotsDotNet.PalringoV3.Models
 {
     public class Message : MessageImpl
     {
-        public BaseMessage Original { get; set; }
-
-        public Message(BaseMessage msg, IUser user, IGroup group, IBot bot)
+        public Message(BaseMessage msg, IUser user, IGroup group, IBot bot) : base(msg)
         {
             User = user;
             Group = group;
             Bot = bot;
-            Original = msg;
 
             MessageType = msg.IsGroup ? MessageType.Group : MessageType.Private;
             Content = msg.Contents;

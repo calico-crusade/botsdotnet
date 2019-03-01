@@ -4,15 +4,10 @@
 
     public class Message : MessageImpl
     {
-        public SparkMessage Original { get; private set; }
-
         public IUser[] Mentions { get; set; }
-
-        public Message() { }
-
-        public Message(SparkMessage message, IUser user, IGroup group, IBot bot)
+        
+        public Message(SparkMessage message, IUser user, IGroup group, IBot bot) : base(message)
         {
-            Original = message;
             User = user;
             Group = group;
             Bot = bot;

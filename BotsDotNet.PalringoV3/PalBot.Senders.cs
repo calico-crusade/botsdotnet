@@ -25,7 +25,7 @@ namespace BotsDotNet.PalringoV3
 
         private async Task<IMessageResponse> Message(string id, bool isGroup, object content, string mimetype = "text/plain")
         {
-            return await WritePacket<MessageResponse>(packetTemplate.Message(id, isGroup, content, mimetype));
+            return (OutMessageResp)await WritePacket<MessageResponse>(packetTemplate.Message(id, isGroup, content, mimetype));
         }
 
         public override Task<IMessageResponse> GroupMessage(string groupid, string contents)

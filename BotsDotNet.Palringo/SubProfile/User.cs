@@ -9,7 +9,7 @@ namespace BotsDotNet.Palringo.SubProfile
     /// <summary>
     /// Users profile, most of it is self explainitory, not going to comment
     /// </summary>
-    public class User : IParsable, IUser
+    public class User : IParsable
     {
         /// <summary>
         /// 
@@ -92,8 +92,6 @@ namespace BotsDotNet.Palringo.SubProfile
         /// All of the tags the user has
         /// </summary>
         public List<Tags> PrivTags => Tags.Agent.AllFlags().Where(t => PrivilegeTags.HasFlag(t)).ToList();
-
-        public string[] Attributes => PrivTags.Select(t => t.ToString()).ToArray();
 
         /// <summary>
         /// 

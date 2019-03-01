@@ -81,7 +81,10 @@ namespace BotsDotNet.Handling
                     //Run the plugin
                     _reflectionUtility.ExecuteDynamicMethod(plugin.Method, plugin.Instance, out bool error,
                         bot, message, res.CappedCommand, message.User, message.Group,
-                        plugin.Instance, plugin.Command, (BotPlatform)bot.Platform);
+                        plugin.Instance, plugin.Command, (BotPlatform)bot.Platform,
+                        message.Original.Original, 
+                        message.User?.Original?.Original,
+                        message.Group?.Original?.Original);
                     //Return the results of the plugin execution
                     return new PluginResult(error ? PluginResultType.Error : PluginResultType.Success, null, plugin);
                 }

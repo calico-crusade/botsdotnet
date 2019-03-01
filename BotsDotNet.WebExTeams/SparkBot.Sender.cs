@@ -13,7 +13,7 @@ namespace BotsDotNet.WebExTeams
     {
         public override async Task<IGroup> GetGroup(string groupid)
         {
-            return await cacheUtility.GetRoom(this, groupid);
+            return (OutGroup)await cacheUtility.GetRoom(this, groupid);
         }
 
         public override async Task<IUser[]> GetGroupUsers(string groupid)

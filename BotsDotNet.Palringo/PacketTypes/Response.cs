@@ -4,7 +4,7 @@
     using Types;
     using Util;
 
-    public class Response : IPacketMap, IMessageResponse
+    public class Response : IPacketMap
     {
         public string Command => "RESPONSE";
 
@@ -32,7 +32,6 @@
             }
         }
 
-        public bool Success => Code == Code.OK;
 
         public override string ToString()
         {

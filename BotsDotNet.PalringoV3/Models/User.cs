@@ -2,7 +2,7 @@
 
 namespace BotsDotNet.PalringoV3.Models
 {
-    public class User : IUser
+    public class User
     {
         [JsonProperty("id")]
         public string Id { get; set; }
@@ -50,5 +50,29 @@ namespace BotsDotNet.PalringoV3.Models
         public string Email { get; set; }
 
         public string[] Attributes { get; set; }
+    }
+
+    public class OutUser : BdnModel, IUser
+    {
+        public string Id { get; private set; }
+
+        public string Nickname { get; private set; }
+
+        public string Status { get; private set; }
+
+        public string[] Attributes { get; private set; }
+
+        public OutUser(User user) : base(user)
+        {
+            Id = user.Id;
+            Nickname = user.Nickname;
+            Status = user.Status;
+            Attributes = user.Attributes;
+        }
+
+        public static implicit operator OutUser(User user)
+        {
+            return new OutUser(user);
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace BotsDotNet.Palringo.SubProfile
     /// <summary>
     /// Groups profile (most properties are self explainitory so they are uncommented)
     /// </summary>
-    public class Group : IParsable, IGroup
+    public class Group : IParsable
     {
         /// <summary>
         /// 

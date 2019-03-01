@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace BotsDotNet.WebExTeams.SparkDotNet
 {
-    public class Person : IUser
+    public class Person
     {
         public string Id { get; set; }
         public string[] Emails { get; set; }
@@ -21,7 +21,6 @@ namespace BotsDotNet.WebExTeams.SparkDotNet
         public string Type { get; set; }
         [JsonProperty("NickName")]
         public string Nickname { get; set; }
-        public string[] Attributes => Roles;
 
         public override string ToString()
         {

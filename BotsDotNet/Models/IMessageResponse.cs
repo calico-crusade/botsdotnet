@@ -1,6 +1,6 @@
 ﻿namespace BotsDotNet
 {
-    public interface IMessageResponse
+    public interface IMessageResponse : IBdnModel
     {
         bool Success { get; }
     }

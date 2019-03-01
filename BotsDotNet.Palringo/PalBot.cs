@@ -20,8 +20,8 @@ namespace BotsDotNet.Palringo
         public static int DefaultPort = 12345;
         public const string PLATFORM = BotPlatform.Palringo;
 
-        public override IUser Profile => SubProfiling.Profile;
-        public override IGroup[] Groups => SubProfiling.Groups.Values.ToArray();
+        public override IUser Profile => (OutUser)SubProfiling.Profile;
+        public override IGroup[] Groups => SubProfiling.Groups.Values.Cast<OutGroup>().ToArray();
         public override string Platform => PLATFORM;
 
         public string Email { get; private set; }
@@ -41,7 +41,6 @@ namespace BotsDotNet.Palringo
         private IZLibCompression compression;
         private IAuthenticationUtility authentication;
         private IPacketHandlerHub handlerHub;
-        private IPluginManager pluginManager;
         private NetworkClient _client;
         private BroadcastUtility broadcast;
 
@@ -72,7 +71,6 @@ namespace BotsDotNet.Palringo
             this.authentication = authentication;
             this.handlerHub = handlerHub;
             this.SubProfiling = subProfiling;
-            this.pluginManager = pluginManager;
             this.On = broadcast;
             this.broadcast = (BroadcastUtility)broadcast;
 
