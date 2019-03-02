@@ -14,8 +14,8 @@ namespace BotsDotNet.Discord
         public const string PLATFORM = BotPlatform.Discord;
         public DiscordSocketClient Connection;
 
-        public override IUser Profile => new User(Connection.CurrentUser);
-        public override IGroup[] Groups => Connection.GroupChannels.Select(t => new Group(t)).ToArray();
+        public override IUser Profile => Connection?.CurrentUser == null ? null : new User(Connection?.CurrentUser);
+        public override IGroup[] Groups => Connection?.GroupChannels?.Select(t => new Group(t)).ToArray();
         public override string Platform => PLATFORM;
 
         public string Token { get; private set; }
@@ -31,7 +31,6 @@ namespace BotsDotNet.Discord
                 Prefix = prefix;
                 Connection = new DiscordSocketClient();
                 Connection.MessageReceived += async (m) => await MessageReceived(m);
-                Connection.Log += Log;
 
                 Connection.LoggedIn += () => { tsc?.SetResult(true); return Task.CompletedTask; };
                 Connection.LoggedOut += () => { tsc?.SetResult(false); return Task.CompletedTask; };
@@ -46,12 +45,6 @@ namespace BotsDotNet.Discord
                 Error(ex);
                 return false;
             }
-        }
-
-        public Task Log(LogMessage message)
-        {
-            Console.WriteLine(message.ToString());
-            return Task.CompletedTask;
         }
 
         public Task MessageReceived(SocketMessage message)

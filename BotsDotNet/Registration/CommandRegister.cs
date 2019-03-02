@@ -12,9 +12,9 @@ namespace BotsDotNet.Registration
 
         private PluginManager _pluginManager;
 
-        private string _restriction = null;
-        private string _pluginset = null;
-        private string _platform = null;
+        private readonly string _restriction = null;
+        private readonly string _pluginset = null;
+        private readonly string _platform = null;
 
         public CommandRegister(IPluginManager pluginManager, string restriction = null, string platform = null, string pluginset = null)
         {
