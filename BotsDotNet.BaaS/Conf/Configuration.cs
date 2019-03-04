@@ -4,21 +4,21 @@ using System.IO;
 
 namespace BotsDotNet.BaaS.Conf
 {
-    public interface IConfiguration : IValidator
+    public interface IConfiguration<T> : IValidator
     {
-        PalringoAccount[] Palringo { get; set; }
-        DiscordAccount[] Discord { get; set; }
-        TwitchAccount[] Twitch { get; set; }
+        PalringoAccount[] Palringo { get; }
+        DiscordAccount[] Discord { get; }
+        TwitchAccount[] Twitch { get; }
 
-        string ServiceName { get; set; }
-        string ServiceDisplayName { get; set; }
-        string ServiceDescription { get; set; }
+        string ServiceName { get; }
+        string ServiceDisplayName { get; }
+        string ServiceDescription { get; }
+
+        T Options { get; set; }
     }
 
-    public class Configuration : IConfiguration
+    public class Configuration<T> : IConfiguration<T>
     {
-        public const string DEFAULT_SETTINGSFILE = "bot.settings.json";
-
         public PalringoAccount[] Palringo { get; set; }
         public DiscordAccount[] Discord { get; set; }
         public TwitchAccount[] Twitch { get; set; }
@@ -26,6 +26,8 @@ namespace BotsDotNet.BaaS.Conf
         public string ServiceName { get; set; }
         public string ServiceDisplayName { get; set; }
         public string ServiceDescription { get; set; }
+
+        public T Options { get; set; }
 
         public bool Validate(out string[] issues)
         {
@@ -46,8 +48,8 @@ namespace BotsDotNet.BaaS.Conf
             issues = tmpIssues.ToArray();
             return tmpIssues.Count == 0;
         }
-
-        public static Configuration FromJson(string filename = DEFAULT_SETTINGSFILE)
+        
+        public static Configuration<T> FromJson(string filename)
         {
             if (!File.Exists(filename))
             {
@@ -58,17 +60,17 @@ namespace BotsDotNet.BaaS.Conf
             }
 
             var contents = File.ReadAllText(filename);
-            return JsonConvert.DeserializeObject<Configuration>(contents);
+            return JsonConvert.DeserializeObject<Configuration<T>>(contents);
         }
 
-        public static Configuration FromDefault()
+        public static Configuration<T> FromDefault()
         {
-            return new Configuration
+            return new Configuration<T>
             {
                 ServiceName = "MyBotService",
                 ServiceDisplayName = "My Super Awesome Bot Service",
                 ServiceDescription = "Service for running some super awesome bots!",
-                Palringo = new []
+                Palringo = new[]
                 {
                     new PalringoAccount
                     {
@@ -108,7 +110,8 @@ namespace BotsDotNet.BaaS.Conf
                         },
                         DebugLog = false
                     }
-                }
+                },
+                Options = default
             };
         }
     }

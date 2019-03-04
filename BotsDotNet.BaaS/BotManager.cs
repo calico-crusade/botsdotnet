@@ -23,13 +23,13 @@ namespace BotsDotNet.BaaS
         Task Stop();
     }
 
-    public class BotManager : IBotManager
+    public class BotManager<T> : IBotManager
     {
         public List<IBot> Bots { get; private set; } = new List<IBot>();
         private readonly ILogger logger;
-        private readonly IConfiguration configuration;
+        private readonly IConfiguration<T> configuration;
 
-        public BotManager(ILogger logger, IConfiguration configuration)
+        public BotManager(ILogger logger, IConfiguration<T> configuration)
         {
             this.logger = logger;
             this.configuration = configuration;
@@ -193,8 +193,8 @@ namespace BotsDotNet.BaaS
         public MapHandler AddDeps(MapHandler handler)
         {
             return handler
-                    .Use<IBotManager, BotManager>(this)
-                    .Use<IConfiguration, IConfiguration>(configuration)
+                    .Use<IBotManager, BotManager<T>>(this)
+                    .Use<IConfiguration<T>, IConfiguration<T>>(configuration)
                     .Use<ILogger, ILogger>(logger);
         }
 

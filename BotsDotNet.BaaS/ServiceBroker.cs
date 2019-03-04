@@ -9,17 +9,19 @@ namespace BotsDotNet.BaaS
 {
     using Conf;
 
-    public class ServiceBroker
+    public class ServiceBroker<T>
     {
-        private readonly BotManager botManager;
-        private readonly ILogger logger;
-        private readonly IConfiguration configuration;
+        public const string DEFAULT_SETTINGSFILE = "bot.settings.json";
 
-        private ServiceBroker(ILogger logger, IConfiguration configuration)
+        internal readonly BotManager<T> botManager;
+        internal readonly ILogger logger;
+        internal readonly IConfiguration<T> configuration;
+
+        internal ServiceBroker(ILogger logger, IConfiguration<T> configuration)
         {
             this.logger = logger;
             this.configuration = configuration;
-            botManager = new BotManager(logger, configuration);
+            botManager = new BotManager<T>(logger, configuration);
         }
 
         public void RunAsAService(Action<IBot> onloggedIn = null)
@@ -32,7 +34,7 @@ namespace BotsDotNet.BaaS
 
             try
             {
-                ServiceRunner<Service>.Run(config =>
+                ServiceRunner<Service<T>>.Run(config =>
                 {
                     config.SetName(configuration.ServiceName);
                     config.SetDisplayName(configuration.ServiceDisplayName);
@@ -42,7 +44,7 @@ namespace BotsDotNet.BaaS
                     {
                         sc.ServiceFactory((s, e) =>
                         {
-                            return new Service(botManager, onloggedIn);
+                            return new Service<T>(botManager, onloggedIn);
                         });
 
                         sc.OnStart((s, e) =>
@@ -120,27 +122,32 @@ namespace BotsDotNet.BaaS
                 .BuildServiceProvider()
                 .GetRequiredService<ILogger<ServiceBroker>>();
         }
-
-        public static ServiceBroker Get(string filename = Configuration.DEFAULT_SETTINGSFILE)
+        
+        public static ServiceBroker<T> Get(string filename = DEFAULT_SETTINGSFILE)
         {
-            var config = Configuration.FromJson(filename);
-            return new ServiceBroker(NLogLogger(), config);
+            var config = Configuration<T>.FromJson(filename);
+            return new ServiceBroker<T>(NLogLogger(), config);
+        }
+        
+        public static ServiceBroker<T> Get(ILogger logger, string filename = DEFAULT_SETTINGSFILE)
+        {
+            var config = Configuration<T>.FromJson(filename);
+            return new ServiceBroker<T>(logger, config);
         }
 
-        public static ServiceBroker Get(ILogger logger, string filename = Configuration.DEFAULT_SETTINGSFILE)
+        public static ServiceBroker<T> Get(IConfiguration<T> config)
         {
-            var config = Configuration.FromJson(filename);
-            return new ServiceBroker(logger, config);
+            return new ServiceBroker<T>(NLogLogger(), config);
         }
 
-        public static ServiceBroker Get(IConfiguration config)
+        public static ServiceBroker<T> Get(ILogger logger, IConfiguration<T> config)
         {
-            return new ServiceBroker(NLogLogger(), config);
+            return new ServiceBroker<T>(logger, config);
         }
+    }
 
-        public static ServiceBroker Get(ILogger logger, IConfiguration config)
-        {
-            return new ServiceBroker(logger, config);
-        }
+    public class ServiceBroker : ServiceBroker<object>
+    {
+        internal ServiceBroker(ILogger logger, IConfiguration<object> configuration) : base(logger, configuration) { }
     }
 }

@@ -3,12 +3,12 @@ using System;
 
 namespace BotsDotNet.BaaS
 {
-    public class Service : IMicroService
+    public class Service<T> : IMicroService
     {
-        private BotManager manager;
+        private BotManager<T> manager;
         private Action<IBot> onloggedin = null;
 
-        public Service(BotManager manager, Action<IBot> onloggedin = null)
+        public Service(BotManager<T> manager, Action<IBot> onloggedin = null)
         {
             this.manager = manager;
             this.onloggedin = onloggedin;
