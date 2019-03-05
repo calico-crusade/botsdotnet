@@ -5,6 +5,8 @@ namespace BotsDotNet
 {
     public static class Extensions
     {
+        private static bool Registered = false;
+
         /// <summary>
         /// This is required because if C# detects that none of the code in an assembly has a hard reference 
         /// it will remove the assembly from the outputs. So use this somewhere in the application. 
@@ -19,6 +21,11 @@ namespace BotsDotNet
 
         public static IBot RegisterDynamicPlugins(this IBot bot)
         {
+            if (Registered)
+                return bot;
+
+            Registered = true;
+
             bot.Commands
                .UserRestriction("MeOnly", (u) => u.Id == "43681734", BotPlatform.Palringo, async (b,m) => await m.Reply("You can't use this"))
                .UserRestriction("MeOnly", (u) => u.Id == "43681734", BotPlatform.PalringoV3)

@@ -9,32 +9,58 @@ namespace BotsDotNet.BaaS
 {
     using Conf;
 
-    public class ServiceBroker<T>
+    public class ServiceBroker
     {
-        public const string DEFAULT_SETTINGSFILE = "bot.settings.json";
+        private readonly Settings settings;
 
-        internal readonly BotManager<T> botManager;
-        internal readonly ILogger logger;
-        internal readonly IConfiguration<T> configuration;
-
-        internal ServiceBroker(ILogger logger, IConfiguration<T> configuration)
+        private ServiceBroker(Settings settings)
         {
-            this.logger = logger;
-            this.configuration = configuration;
-            botManager = new BotManager<T>(logger, configuration);
+            this.settings = settings ?? new Settings();
         }
 
-        public void RunAsAService(Action<IBot> onloggedIn = null)
+        public void Run()
         {
-            if (configuration == null)
+            if (settings.Logger == null)
+                settings.Logger = DefaultLogger();
+
+            if (settings.Configuration == null)
+                settings.Configuration = DefaultConfig();
+
+            if (settings.Configuration == null)
             {
-                logger.LogError("Could not get configuration file.");
+                settings.Logger.LogError("Could not get find configuration file, one will be generated. Please update the generated configuration");
                 return;
             }
 
+            if (settings.OnLoggedIn == null)
+                settings.OnLoggedIn = (b) => { };
+
+            if (settings.DependencyHandler == null)
+                settings.DependencyHandler = (m) => { };
+
+            if (settings.AsAService && RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                settings.AsAService = false;
+                settings.Logger.LogWarning("OSX Platform does not support running as a service. Default to console.");
+            }
+
+            if (settings.AsAService)
+            {
+                RunService();
+                return;
+            }
+
+            RunCli();
+        }
+
+        private void RunService()
+        {
+            var logger = settings.Logger;
+            var configuration = settings.Configuration;
+
             try
             {
-                ServiceRunner<Service<T>>.Run(config =>
+                ServiceRunner<BotManager>.Run(config =>
                 {
                     config.SetName(configuration.ServiceName);
                     config.SetDisplayName(configuration.ServiceDisplayName);
@@ -44,7 +70,7 @@ namespace BotsDotNet.BaaS
                     {
                         sc.ServiceFactory((s, e) =>
                         {
-                            return new Service<T>(botManager, onloggedIn);
+                            return new BotManager(settings);
                         });
 
                         sc.OnStart((s, e) =>
@@ -75,39 +101,21 @@ namespace BotsDotNet.BaaS
             }
         }
 
-        public void RunAsConsole(Action<IBot> onloggedIn = null)
+        private void RunCli()
         {
-            if (configuration == null)
-            {
-                logger.LogError("Could not get configuration file.");
-                return;
-            }
+            Console.Title = settings.Configuration.ServiceDisplayName;
 
-            Console.Title = configuration.ServiceDisplayName;
-            botManager.Start(onloggedIn);
+            var manager = new BotManager(settings);
+            manager.Start();
+
+            while (Console.ReadKey().Key != ConsoleKey.E)
+                Console.WriteLine("Press \"E\" to exit");
+
+            manager.Stop();
+            Environment.Exit(0);
         }
 
-        public void Run(bool service = true, Action<IBot> onloggedIn = null)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && service)
-            {
-                logger.LogWarning("OSX Platform does not support running as a service. Defaulting to Console.");
-                service = false;
-            }
-
-            if (!service)
-            {
-                RunAsConsole(onloggedIn);
-                while (Console.ReadKey().Key != ConsoleKey.E)
-                    Console.WriteLine("Hit the \"E\" key to exit.");
-
-                return;
-            }
-
-            RunAsAService(onloggedIn);
-        }
-
-        private static ILogger NLogLogger()
+        private ILogger DefaultLogger()
         {
             return new ServiceCollection()
                 .AddLogging(builder =>
@@ -122,37 +130,25 @@ namespace BotsDotNet.BaaS
                 .BuildServiceProvider()
                 .GetRequiredService<ILogger<ServiceBroker>>();
         }
-        
-        public static ServiceBroker<T> Get(string filename = DEFAULT_SETTINGSFILE)
+
+        private IConfiguration DefaultConfig()
         {
-            var config = Configuration<T>.FromJson(filename);
-            return new ServiceBroker<T>(NLogLogger(), config);
-        }
-        
-        public static ServiceBroker<T> Get(ILogger logger, string filename = DEFAULT_SETTINGSFILE)
-        {
-            var config = Configuration<T>.FromJson(filename);
-            return new ServiceBroker<T>(logger, config);
+            if (string.IsNullOrEmpty(settings.SettingsPath))
+                settings.SettingsPath = Settings.DEFAULT_SETTINGSFILE;
+
+            return Configuration.FromJson(settings.SettingsPath);
         }
 
-        public static ServiceBroker<T> Get(IConfiguration<T> config)
+        public static ServiceBroker Create(Settings settings = null)
         {
-            return new ServiceBroker<T>(NLogLogger(), config);
+            return new ServiceBroker(settings);
         }
 
-        public static ServiceBroker<T> Get(ILogger logger, IConfiguration<T> config)
+        public static ServiceBroker Create(Action<Settings> settings)
         {
-            return new ServiceBroker<T>(logger, config);
+            var set = new Settings();
+            settings?.Invoke(set);
+            return new ServiceBroker(set);
         }
-    }
-
-    public class ServiceBroker : ServiceBroker<ServiceBroker.SettingsFake>
-    {
-        public class SettingsFake
-        {
-
-        }
-
-        internal ServiceBroker(ILogger logger, IConfiguration<SettingsFake> configuration) : base(logger, configuration) { }
     }
 }

@@ -4,7 +4,7 @@ using System.IO;
 
 namespace BotsDotNet.BaaS.Conf
 {
-    public interface IConfiguration<T> : IValidator
+    public interface IConfiguration : IValidator
     {
         PalringoAccount[] Palringo { get; }
         DiscordAccount[] Discord { get; }
@@ -13,11 +13,9 @@ namespace BotsDotNet.BaaS.Conf
         string ServiceName { get; }
         string ServiceDisplayName { get; }
         string ServiceDescription { get; }
-
-        T Options { get; set; }
     }
 
-    public class Configuration<T> : IConfiguration<T>
+    public class Configuration : IConfiguration
     {
         public PalringoAccount[] Palringo { get; set; }
         public DiscordAccount[] Discord { get; set; }
@@ -26,8 +24,6 @@ namespace BotsDotNet.BaaS.Conf
         public string ServiceName { get; set; }
         public string ServiceDisplayName { get; set; }
         public string ServiceDescription { get; set; }
-
-        public T Options { get; set; }
 
         public bool Validate(out string[] issues)
         {
@@ -49,7 +45,7 @@ namespace BotsDotNet.BaaS.Conf
             return tmpIssues.Count == 0;
         }
         
-        public static Configuration<T> FromJson(string filename)
+        public static Configuration FromJson(string filename)
         {
             if (!File.Exists(filename))
             {
@@ -60,12 +56,12 @@ namespace BotsDotNet.BaaS.Conf
             }
 
             var contents = File.ReadAllText(filename);
-            return JsonConvert.DeserializeObject<Configuration<T>>(contents);
+            return JsonConvert.DeserializeObject<Configuration>(contents);
         }
 
-        public static Configuration<T> FromDefault()
+        public static Configuration FromDefault()
         {
-            return new Configuration<T>
+            return new Configuration
             {
                 ServiceName = "MyBotService",
                 ServiceDisplayName = "My Super Awesome Bot Service",
@@ -110,8 +106,7 @@ namespace BotsDotNet.BaaS.Conf
                         },
                         DebugLog = false
                     }
-                },
-                Options = default
+                }
             };
         }
     }

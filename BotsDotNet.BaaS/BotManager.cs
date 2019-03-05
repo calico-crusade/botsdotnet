@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Microsoft.Extensions.Logging;
-using System;
+using PeterKottas.DotNetCore.WindowsService.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,41 +16,34 @@ namespace BotsDotNet.BaaS
     public interface IBotManager
     {
         IEnumerable<IBot> GetBots();
-        void AddBot(PalringoAccount account, Action<IBot> onloggedin = null);
-        void AddBot(DiscordAccount account, Action<IBot> onloggedin = null);
-        void AddBot(TwitchAccount account, Action<IBot> onloggedin = null);
-        void Start(Action<IBot> onloggedin = null);
-        Task Stop();
+        Task AddBot(PalringoAccount account);
+        Task AddBot(DiscordAccount account);
+        Task AddBot(TwitchAccount account);
     }
 
-    public class BotManager<T> : IBotManager
+    public class BotManager : IMicroService, IBotManager
     {
         public List<IBot> Bots { get; private set; } = new List<IBot>();
-        private readonly ILogger logger;
-        private readonly IConfiguration<T> configuration;
+        
+        private Settings settings;
+        private ILogger logger => settings.Logger;
+        private IConfiguration configuration => settings.Configuration;
 
-        public BotManager(ILogger logger, IConfiguration<T> configuration)
+        public BotManager(Settings settings)
         {
-            this.logger = logger;
-            this.configuration = configuration;
+            this.settings = settings;
         }
 
-        public void AddBot(IBot bot)
-        {
-            Bots.Add(bot);
-        }
-
-        #region Exposed Methods
         public IEnumerable<IBot> GetBots()
         {
             return Bots.ToArray();
         }
 
-        public async void AddBot(PalringoAccount account, Action<IBot> onloggedin = null)
+        public async Task AddBot(PalringoAccount account)
         {
             var bot = (PalBot)AddDeps(PalBot.DependencyResolution()).Build<IBot>();
             bot.PluginSets = account.PluginSet;
-            
+
             bot.OnError += (e) => logger.LogError(e, LogMessage(bot, account.Email, "Error occurred"));
             bot.On.LoginFailed += (b, reason) => logger.LogWarning(LogMessage(bot, account.Email, "Login failed: " + reason));
             bot.On.Disconnected += () => logger.LogWarning(LogMessage(bot, account.Email, "Disconnected"));
@@ -63,10 +56,11 @@ namespace BotsDotNet.BaaS
                 return;
 
             logger.LogInformation(LogMessage(bot, account.Email, "Login Success"));
+            settings.OnLoggedIn?.Invoke(bot);
             Bots.Add(bot);
         }
 
-        public async void AddBot(DiscordAccount account, Action<IBot> onloggedin = null)
+        public async Task AddBot(DiscordAccount account)
         {
             var bot = (DiscordBot)AddDeps(DiscordBot.DependencyResolution()).Build<IBot>();
             bot.PluginSets = account.PluginSet;
@@ -83,10 +77,11 @@ namespace BotsDotNet.BaaS
             }
 
             logger.LogInformation(LogMessage(bot, tok, "Login Success"));
+            settings.OnLoggedIn?.Invoke(bot);
             Bots.Add(bot);
         }
 
-        public async void AddBot(TwitchAccount account, Action<IBot> onloggedin = null)
+        public async Task AddBot(TwitchAccount account)
         {
             var bot = (TwitchBot)AddDeps(TwitchBot.DependencyResolution()).Build<IBot>();
             bot.PluginSets = account.PluginSet;
@@ -105,20 +100,22 @@ namespace BotsDotNet.BaaS
                 bot.JoinChannel(account.Channels);
 
             logger.LogInformation(LogMessage(bot, account.Username, "Login Success"));
+            settings.OnLoggedIn?.Invoke(bot);
             Bots.Add(bot);
         }
 
-        public void Start(Action<IBot> onloggedin = null)
+        #region Internal methods
+        private async Task BotStart()
         {
             var issues = new string[0];
             if (!configuration.Validate(out issues))
             {
-                foreach(var issue in issues)
+                foreach (var issue in issues)
                     logger.LogError("Issue with configuration: " + issue);
                 return;
             }
 
-            foreach(var account in configuration?.Palringo ?? new PalringoAccount[0])
+            foreach (var account in configuration?.Palringo ?? new PalringoAccount[0])
             {
                 if (!account.Validate(out issues))
                 {
@@ -127,7 +124,7 @@ namespace BotsDotNet.BaaS
                     continue;
                 }
 
-                AddBot(account, onloggedin);
+                await AddBot(account);
             }
 
             foreach (var account in configuration?.Discord ?? new DiscordAccount[0])
@@ -139,7 +136,7 @@ namespace BotsDotNet.BaaS
                     continue;
                 }
 
-                AddBot(account, onloggedin);
+                await AddBot(account);
             }
 
             foreach (var account in configuration?.Twitch ?? new TwitchAccount[0])
@@ -151,13 +148,13 @@ namespace BotsDotNet.BaaS
                     continue;
                 }
 
-                AddBot(account, onloggedin);
+                await AddBot(account);
             }
         }
 
-        public async Task Stop()
+        private async Task BotStop()
         {
-            foreach(var bot in Bots)
+            foreach (var bot in Bots)
             {
                 if (bot is PalBot palbot)
                 {
@@ -187,15 +184,24 @@ namespace BotsDotNet.BaaS
                 }
             }
         }
-        #endregion
 
-        #region Internal methods
+        public void Start()
+        {
+            BotStart().Wait();
+        }
+
+        public void Stop()
+        {
+            BotStop().Wait();
+        }
+
         public MapHandler AddDeps(MapHandler handler)
         {
+            settings.DependencyHandler?.Invoke(handler);
+
             return handler
-                    .Use<IBotManager, BotManager<T>>(this)
-                    .Use<IConfiguration<T>, IConfiguration<T>>(configuration)
-                    .Use<T, T>(configuration.Options)
+                    .Use<IBotManager, BotManager>(this)
+                    .Use<IConfiguration, IConfiguration>(configuration)
                     .Use<ILogger, ILogger>(logger);
         }
 
@@ -212,4 +218,5 @@ namespace BotsDotNet.BaaS
         }
         #endregion
     }
+
 }

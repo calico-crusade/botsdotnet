@@ -9,10 +9,14 @@
             //Default to a console application
             bool runAsAService = false;
 
-            ServiceBroker.Get().Run(runAsAService, (b) =>
+            ServiceBroker.Create(_ =>
             {
-                b.RegisterTestPlugin();
-            });
+                _.AsAService = runAsAService;
+                _.OnLoggedIn = (b) =>
+                {
+                    b.RegisterTestPlugin();
+                };
+            }).Run();
         }
     }
 }
