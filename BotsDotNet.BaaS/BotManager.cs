@@ -195,6 +195,7 @@ namespace BotsDotNet.BaaS
             return handler
                     .Use<IBotManager, BotManager<T>>(this)
                     .Use<IConfiguration<T>, IConfiguration<T>>(configuration)
+                    .Use<T, T>(configuration.Options)
                     .Use<ILogger, ILogger>(logger);
         }
 

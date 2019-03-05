@@ -146,8 +146,13 @@ namespace BotsDotNet.BaaS
         }
     }
 
-    public class ServiceBroker : ServiceBroker<object>
+    public class ServiceBroker : ServiceBroker<ServiceBroker.SettingsFake>
     {
-        internal ServiceBroker(ILogger logger, IConfiguration<object> configuration) : base(logger, configuration) { }
+        public class SettingsFake
+        {
+
+        }
+
+        internal ServiceBroker(ILogger logger, IConfiguration<SettingsFake> configuration) : base(logger, configuration) { }
     }
 }
