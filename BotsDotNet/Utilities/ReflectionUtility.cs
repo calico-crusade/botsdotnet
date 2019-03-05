@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BotsDotNet.Utilities
 {
@@ -43,7 +42,7 @@ namespace BotsDotNet.Utilities
             this.container = container;
         }
 
-        public object ChangeType(object obj, Type toType)
+        public virtual object ChangeType(object obj, Type toType)
         {
             if (obj == null)
                 return null;
@@ -77,27 +76,27 @@ namespace BotsDotNet.Utilities
             return Convert.ChangeType(obj, to);
         }
 
-        public T ChangeType<T>(object obj)
+        public virtual T ChangeType<T>(object obj)
         {
             return (T)ChangeType(obj, typeof(T));
         }
 
-        public T GetInstance<T>()
+        public virtual T GetInstance<T>()
         {
             return container.GetInstance<T>();
         }
-        
-        public object GetInstance(Type type)
+
+        public virtual object GetInstance(Type type)
         {
             return container.GetInstance(type);
         }
 
-        public IEnumerable<T> GetAllTypesOf<T>()
+        public virtual IEnumerable<T> GetAllTypesOf<T>()
         {
             return container.GetAllInstances<T>().ToArray();
         }
 
-        public IEnumerable<Type> GetTypes(Type implementedInterface)
+        public virtual IEnumerable<Type> GetTypes(Type implementedInterface)
         {
             var assembly = Assembly.GetEntryAssembly();
             var alreadyLoaded = new List<string>
@@ -163,7 +162,7 @@ namespace BotsDotNet.Utilities
 
         }
 
-        public object ExecuteDynamicMethod(MethodInfo info, object def, out bool error, params object[] defaultparameters)
+        public virtual object ExecuteDynamicMethod(MethodInfo info, object def, out bool error, params object[] defaultparameters)
         {
             try
             {
@@ -210,8 +209,8 @@ namespace BotsDotNet.Utilities
                 return ex;
             }
         }
-        
-        public object ExecuteMethod(MethodInfo info, object def, out bool error, params object[] pars)
+
+        public virtual object ExecuteMethod(MethodInfo info, object def, out bool error, params object[] pars)
         {
             try
             {
@@ -225,7 +224,7 @@ namespace BotsDotNet.Utilities
             }
         }
 
-        public T Clone<T>(T item)
+        public virtual T Clone<T>(T item)
         {
             var ser = JsonConvert.SerializeObject(item);
             return JsonConvert.DeserializeObject<T>(ser);

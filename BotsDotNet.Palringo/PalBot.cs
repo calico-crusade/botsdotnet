@@ -206,9 +206,11 @@ namespace BotsDotNet.Palringo
 
         public static MapHandler DependencyResolution()
         {
+            var bc = new BroadcastUtility();
             return ReflectionUtility.DependencyInjection()
                                     .AllOf<IPacketHandler>()
                                     .AllOf<IWatch>()
+                                    .Use<IReflectionUtility, PalReflectionUtility>((c, i) => new PalReflectionUtility(c))
                                     .Use<IBot, PalBot>()
                                     .Use<IPacketSerializer, PacketSerializer>()
                                     .Use<IPacketDeserializer, PacketDeserializer>()
@@ -218,8 +220,8 @@ namespace BotsDotNet.Palringo
                                     .Use<IZLibCompression, ZLibCompression>()
                                     .Use<IAuthenticationUtility, AuthenticationUtility>()
                                     .Use<IPacketHandlerHub, PacketHandlerHub>()
-                                    .Use<ISubProfiling, SubProfiling>()
-                                    .Use<IBroadcastUtility, BroadcastUtility>();
+                                    .Use<ISubProfiling, SubProfiling>(new SubProfiling(bc))
+                                    .Use<IBroadcastUtility, BroadcastUtility>(bc);
         }
     }
 }

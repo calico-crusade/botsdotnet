@@ -4,6 +4,7 @@ using System.Reflection;
 
 namespace BotsDotNet.Palringo.Networking.Mapping
 {
+    using Util;
     using Utilities;
 
     public interface IPacketMapper
@@ -17,10 +18,12 @@ namespace BotsDotNet.Palringo.Networking.Mapping
         private static Dictionary<string, MappedPacket> PacketMaps { get; set; }
 
         private IReflectionUtility reflection;
+        private BroadcastUtility broadcast;
 
-        public PacketMapper(IReflectionUtility reflection)
+        public PacketMapper(IReflectionUtility reflection, IBroadcastUtility broadcast)
         {
             this.reflection = reflection;
+            this.broadcast = (BroadcastUtility)broadcast;
         }
         
         public IPacket Unmap(IPacketMap map)
@@ -59,7 +62,7 @@ namespace BotsDotNet.Palringo.Networking.Mapping
             
             if (!PacketMaps.ContainsKey(packet.Command))
                 return null;
-
+            
             var mapper = PacketMaps[packet.Command];
 
             var instance = Activator.CreateInstance(mapper.PacketType);
@@ -86,7 +89,10 @@ namespace BotsDotNet.Palringo.Networking.Mapping
             {
                 prop.SetValue(item, reflection.ChangeType(value, prop.PropertyType), null);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                broadcast.BroadcastException(ex, "Error occurred during property assignment in packet map.");
+            }
         }
 
         private void LoadPacketMaps()
