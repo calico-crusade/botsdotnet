@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2042
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28711.60
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotsDotNet", "BotsDotNet\BotsDotNet.csproj", "{99F4B367-D309-4C9B-9798-E28F1FEAE001}"
 EndProject
@@ -29,11 +29,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotsDotNet.Twitch", "BotsDo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotsDotNet.Twitch.CliTest", "BotsDotNet.Twitch.CliTest\BotsDotNet.Twitch.CliTest.csproj", "{23C256A6-54FC-41C5-9523-1AA0DC85E254}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotsDotNet.AllInOne.CliTest", "BotsDotNet.AllInOne.CliTest\BotsDotNet.AllInOne.CliTest.csproj", "{725A8193-38F1-466D-ABC2-6AD086615EA8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotsDotNet.AllInOne.CliTest", "BotsDotNet.AllInOne.CliTest\BotsDotNet.AllInOne.CliTest.csproj", "{725A8193-38F1-466D-ABC2-6AD086615EA8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotsDotNet.BaaS", "BotsDotNet.BaaS\BotsDotNet.BaaS.csproj", "{C0FC52CF-718E-44B5-A981-7CBC5E7E3EA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotsDotNet.BaaS", "BotsDotNet.BaaS\BotsDotNet.BaaS.csproj", "{C0FC52CF-718E-44B5-A981-7CBC5E7E3EA9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PlatformDependent", "PlatformDependent", "{61D8704B-5700-484A-ACD0-E012AD86D9AE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotsDotNet.Reddit", "BotsDotNet.Reddit\BotsDotNet.Reddit.csproj", "{122BB9F5-AE4C-466F-AD78-7126EEA9A850}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotsDotNet.Reddit.CliTest", "BotsDotNet.Reddit.CliTest\BotsDotNet.Reddit.CliTest.csproj", "{65F5E9B3-9E3B-4A4C-B36A-D9387EE0F234}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotsDotNet.Test", "BotsDotNet.Test\BotsDotNet.Test.csproj", "{C00C0BFC-4F4E-4D64-A6A6-95892268785F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +103,18 @@ Global
 		{C0FC52CF-718E-44B5-A981-7CBC5E7E3EA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0FC52CF-718E-44B5-A981-7CBC5E7E3EA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0FC52CF-718E-44B5-A981-7CBC5E7E3EA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{122BB9F5-AE4C-466F-AD78-7126EEA9A850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{122BB9F5-AE4C-466F-AD78-7126EEA9A850}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{122BB9F5-AE4C-466F-AD78-7126EEA9A850}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{122BB9F5-AE4C-466F-AD78-7126EEA9A850}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65F5E9B3-9E3B-4A4C-B36A-D9387EE0F234}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65F5E9B3-9E3B-4A4C-B36A-D9387EE0F234}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65F5E9B3-9E3B-4A4C-B36A-D9387EE0F234}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65F5E9B3-9E3B-4A4C-B36A-D9387EE0F234}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C00C0BFC-4F4E-4D64-A6A6-95892268785F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C00C0BFC-4F4E-4D64-A6A6-95892268785F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C00C0BFC-4F4E-4D64-A6A6-95892268785F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C00C0BFC-4F4E-4D64-A6A6-95892268785F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +129,8 @@ Global
 		{23C256A6-54FC-41C5-9523-1AA0DC85E254} = {AD33176A-53BA-4396-95F3-FB92426B6F52}
 		{725A8193-38F1-466D-ABC2-6AD086615EA8} = {AD33176A-53BA-4396-95F3-FB92426B6F52}
 		{C0FC52CF-718E-44B5-A981-7CBC5E7E3EA9} = {61D8704B-5700-484A-ACD0-E012AD86D9AE}
+		{122BB9F5-AE4C-466F-AD78-7126EEA9A850} = {61D8704B-5700-484A-ACD0-E012AD86D9AE}
+		{65F5E9B3-9E3B-4A4C-B36A-D9387EE0F234} = {AD33176A-53BA-4396-95F3-FB92426B6F52}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BF828D7F-4679-4B88-A006-BEBC80AED7FB}

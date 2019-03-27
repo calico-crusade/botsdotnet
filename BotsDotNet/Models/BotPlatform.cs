@@ -11,6 +11,7 @@ namespace BotsDotNet
         public const string PalringoV3 = "PalringoV3";
         public const string WebExTeams = "WebExTeams";
         public const string Twitch = "Twicth";
+        public const string Reddit = "Reddit";
 
         private string _value;
 

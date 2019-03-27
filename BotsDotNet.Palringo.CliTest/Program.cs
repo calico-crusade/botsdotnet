@@ -5,7 +5,7 @@ namespace BotsDotNet.Palringo.CliTest
 {
     public class Program
     {
-        public IBot Bot { get; set; }
+        public PalBot Bot { get; set; }
 
         static void Main(string[] args)
         {
@@ -26,9 +26,10 @@ namespace BotsDotNet.Palringo.CliTest
 
         public Program()
         {
-            Bot = PalBot.Create()
-                        .UseConsoleLogging()
-                        .RegisterTestPlugin();
+            Bot = PalBot.Create();
+            Bot
+                .UseConsoleLogging()
+                .RegisterTestPlugin();
         }
 
         public async Task Start(string email, string password)

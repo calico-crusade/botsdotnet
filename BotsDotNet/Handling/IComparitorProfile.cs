@@ -38,7 +38,7 @@ namespace BotsDotNet.Handling
                     CappedCommand = msg
                 };
 
-            msg = message.Content.Trim().Remove(0, cmd.Length);
+            msg = message.Content.Trim().Remove(0, cmd.Length).Trim();
             return new ComparitorResult
             {
                 IsMatch = true,

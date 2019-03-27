@@ -13,11 +13,9 @@
             if (message.MessageType != MessageType.Group)
                 return false;
 
-            if (!(message.Group is Group))
+            if (!(message.Group.Original.Original is Group grp))
                 return false;
-
-            var grp = message.Group as Group;
-
+            
             if (checkOwner && grp.OwnerId == userid)
                 return true;
 

@@ -4,7 +4,7 @@ namespace BotsDotNet.Palringo.CliTest
 {
     public class TestPlugin : IPlugin
     {
-        [Command("test")]
+        [Command("test", Restriction = "Mod")]
         public async Task Testing(IBot bot, IMessage message, string cmd)
         {
             await bot.Reply(message, "Hello world! " + cmd);

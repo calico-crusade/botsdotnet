@@ -26,5 +26,19 @@ namespace BotsDotNet.Utilities
             }
             return Convert.ChangeType(value, t);
         }
+
+        public static bool NotNullOrEmpty(this string primary, params string[] secondary)
+        {
+            if (string.IsNullOrEmpty(primary))
+                return false;
+
+            foreach(var str in secondary ?? new string[0])
+            {
+                if (string.IsNullOrEmpty(str))
+                    return false;
+            }
+
+            return true;
+        }
     }
 }
