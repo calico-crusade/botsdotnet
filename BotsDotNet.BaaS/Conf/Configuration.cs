@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace BotsDotNet.BaaS.Conf
 {
@@ -47,7 +49,8 @@ namespace BotsDotNet.BaaS.Conf
         
         public static Configuration FromJson(string filename)
         {
-            if (!File.Exists(filename))
+            var path = GetPossibleConfig(filename);
+            if (path == null)
             {
                 var def = FromDefault();
                 var ser = JsonConvert.SerializeObject(def, Formatting.Indented);
@@ -55,8 +58,28 @@ namespace BotsDotNet.BaaS.Conf
                 return null;
             }
 
-            var contents = File.ReadAllText(filename);
+            var contents = File.ReadAllText(path);
             return JsonConvert.DeserializeObject<Configuration>(contents);
+        }
+
+        private static string GetPossibleConfig(string filename)
+        {
+            var paths = new[]
+            {
+                "",
+                Directory.GetCurrentDirectory(),
+                AppContext.BaseDirectory,
+                Assembly.GetCallingAssembly().Location
+            };
+
+            foreach (var path in paths)
+            {
+                var ap = string.IsNullOrEmpty(path) ? filename : Path.Combine(path, filename);
+                if (File.Exists(ap))
+                    return ap;
+            }
+
+            return null;
         }
 
         public static Configuration FromDefault()
