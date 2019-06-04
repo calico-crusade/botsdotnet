@@ -105,7 +105,7 @@ namespace BotsDotNet.BaaS
         }
 
         #region Internal methods
-        private async Task BotStart()
+        private async void BotStart()
         {
             var issues = new string[0];
             if (!configuration.Validate(out issues))
@@ -187,7 +187,7 @@ namespace BotsDotNet.BaaS
 
         public void Start()
         {
-            BotStart().Wait();
+            BotStart();
         }
 
         public void Stop()

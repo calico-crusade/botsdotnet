@@ -35,7 +35,7 @@ namespace BotsDotNet.Palringo.CliTest
         public async Task Start(string email, string password)
         {
             Bot.OnError += (e) => Console.WriteLine(e);
-            var success = await ((PalBot)Bot).Login(email, password, "!");
+            var success = await ((PalBot)Bot).Login(email, password, "!c4");
 
             if (success)
             {
