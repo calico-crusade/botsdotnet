@@ -151,7 +151,7 @@ namespace BotsDotNet.Palringo
             return await SendMessage(MessageType.Private, DataType.Image, id, data);
         }
         
-        public async Task<bool> Login(string email, string password,
+        public virtual async Task<bool> Login(string email, string password,
             string prefix = null,
             AuthStatus status = AuthStatus.Online,
             DeviceType device = DeviceType.PC,
@@ -212,49 +212,49 @@ namespace BotsDotNet.Palringo
             return true;
         }
 
-        public async Task<Response> AdminAction(AdminActions action, string user, string group)
+        public virtual async Task<Response> AdminAction(AdminActions action, string user, string group)
         {
             var packet = packetTemplates.AdminAction(action, user, group);
 
             return await SendAwaitResponse(packet);
         }
 
-        public async Task<Response> AddContact(string user, string message = "I'd like to add you")
+        public virtual async Task<Response> AddContact(string user, string message = "I'd like to add you")
         {
             return await SendAwaitResponse(packetTemplates.AddContact(user, message));
         }
 
-        public async Task<Response> AddContactResponse(bool accept, string user)
+        public virtual async Task<Response> AddContactResponse(bool accept, string user)
         {
             return await SendAwaitResponse(packetTemplates.AddContactResponse(accept, user));
         }
 
-        public async Task<Response> CreateGroup(string name, string description, string password = null)
+        public virtual async Task<Response> CreateGroup(string name, string description, string password = null)
         {
             return await SendAwaitResponse(packetTemplates.CreateGroup(name, description, password));
         }
 
-        public async Task<Response> JoinGroup(string name, string password = null)
+        public virtual async Task<Response> JoinGroup(string name, string password = null)
         {
             return await SendAwaitResponse(packetTemplates.JoinGroup(name, password));
         }
 
-        public async Task<Response> LeaveGroup(string group)
+        public virtual async Task<Response> LeaveGroup(string group)
         {
             return await SendAwaitResponse(packetTemplates.LeaveGroup(group));
         }
 
-        public async Task<Response> UpdateProfile(string nickname, string status)
+        public virtual async Task<Response> UpdateProfile(string nickname, string status)
         {
             return await SendAwaitResponse(packetTemplates.UpdateProfile(nickname, status));
         }
 
-        public async Task<Response> UpdateProfile(ExtendedUser user)
+        public virtual async Task<Response> UpdateProfile(ExtendedUser user)
         {
             return await SendAwaitResponse(packetTemplates.UpdateProfile(user));
         }
 
-        public async Task Disconnect()
+        public virtual async Task Disconnect()
         {
             await Write(new Packet
             {
@@ -265,13 +265,13 @@ namespace BotsDotNet.Palringo
             _client.Stop();
         }
 
-        public async Task<bool> UpdateAvatar(byte[] image)
+        public virtual async Task<bool> UpdateAvatar(byte[] image)
         {
             var packet = packetTemplates.AvatarUpdate(image);
             return await Write(packet);
         }
 
-        public async Task<IMessage> Message(MessagePacket packet)
+        public virtual async Task<IMessage> Message(MessagePacket packet)
         {
             var user = await GetUser(packet.UserId);
             var group = packet.MesgType == MessageType.Group ? (await GetGroup(packet.GroupId)) : null;

@@ -211,7 +211,7 @@ namespace BotsDotNet
             }
         }
 
-        public void Error(Exception ex)
+        public virtual void Error(Exception ex)
         {
             OnError(ex);
         }

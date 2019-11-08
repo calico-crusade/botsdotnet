@@ -15,7 +15,7 @@ namespace BotsDotNet.Discord
         public User(SocketUser user) : base(user)
         {
             Id = user.Id.ToString();
-            Nickname = user.Username;
+            Nickname = user.Username + "#" + user.Discriminator;
             Status = user.Status.ToString();
             Attributes = new string[0];
         }

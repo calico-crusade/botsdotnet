@@ -87,7 +87,7 @@ namespace BotsDotNet.Palringo
             this.broadcast.PacketParsed += (c, p) => PacketReceived(p);
         }
 
-        public async Task<bool> Write(IPacket packet)
+        public virtual async Task<bool> Write(IPacket packet)
         {
             if (!_client?.Connected ?? false)
                 return false;
@@ -106,7 +106,7 @@ namespace BotsDotNet.Palringo
             return worked;
         }
 
-        public async Task<T> Write<T>(IPacket packet, Func<Task<T>> onSerailized)
+        public virtual async Task<T> Write<T>(IPacket packet, Func<Task<T>> onSerailized)
         {
             if (!_client?.Connected ?? false)
                 return default(T);
@@ -127,7 +127,7 @@ namespace BotsDotNet.Palringo
             return worked ? await output : default(T);
         }
 
-        public async Task<bool> Write(IPacketMap map)
+        public virtual async Task<bool> Write(IPacketMap map)
         {
             var packet = packetMapper.Unmap(map);
             if (packet == null)

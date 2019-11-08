@@ -84,7 +84,8 @@ namespace BotsDotNet.Handling
                         plugin.Instance, plugin.Command, (BotPlatform)bot.Platform,
                         message.Original.Original, 
                         message.User?.Original?.Original,
-                        message.Group?.Original?.Original);
+                        message.Group?.Original?.Original,
+                        this);
                     //Return the results of the plugin execution
                     return new PluginResult(error ? PluginResultType.Error : PluginResultType.Success, null, plugin);
                 }

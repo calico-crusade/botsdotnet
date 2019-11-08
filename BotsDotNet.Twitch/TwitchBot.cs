@@ -25,7 +25,7 @@ namespace BotsDotNet.Twitch
 
         public TwitchBot(IPluginManager pluginManager) : base(pluginManager) { }
 
-        public Task<bool> Login(string username, string clientid, string token, string prefix = null, string channel = null)
+        public virtual Task<bool> Login(string username, string clientid, string token, string prefix = null, string channel = null)
         {
             var tsc = new TaskCompletionSource<bool>();
             Username = username;
@@ -54,7 +54,7 @@ namespace BotsDotNet.Twitch
             return tsc.Task;
         }
 
-        public void JoinChannel(params string[] channels)
+        public virtual void JoinChannel(params string[] channels)
         {
             foreach(var channel in channels)
                 Connection.JoinChannel(channel);
@@ -77,7 +77,7 @@ namespace BotsDotNet.Twitch
             await MessageReceived(msg);
         }
 
-        public void Log(string message, object item = null)
+        public virtual void Log(string message, object item = null)
         {
             if (!Debug)
                 return;

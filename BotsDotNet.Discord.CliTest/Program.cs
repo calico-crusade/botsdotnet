@@ -16,12 +16,14 @@ namespace BotsDotNet.Discord.CliTest
 
         public async Task Start(string token)
         {
+            
             Bot.OnError += (e) => Console.WriteLine(e);
             var success = await Bot.Start(token, "$");
 
             if (success)
             {
-                Console.WriteLine("Login Success");
+                Console.WriteLine("Login Success, " + Bot.Connection.Status.ToString());
+                
                 return;
             }
 

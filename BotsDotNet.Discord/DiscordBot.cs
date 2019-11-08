@@ -22,7 +22,7 @@ namespace BotsDotNet.Discord
 
         public DiscordBot(IPluginManager pluginManager) : base(pluginManager) { }
 
-        public async Task<bool> Start(string token, string prefix = null)
+        public virtual async Task<bool> Start(string token, string prefix = null)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace BotsDotNet.Discord
             }
         }
 
-        public Task MessageReceived(SocketMessage message)
+        public virtual Task MessageReceived(SocketMessage message)
         {
             try
             {

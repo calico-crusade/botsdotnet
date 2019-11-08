@@ -183,7 +183,7 @@ namespace BotsDotNet.Utilities
 
                     var pt = par.ParameterType;
 
-                    var fit = defaultparameters.FirstOrDefault(t => pt.IsAssignableFrom(t.GetType()));
+                    var fit = defaultparameters.FirstOrDefault(t => t != null && pt.IsAssignableFrom(t.GetType()));
 
                     if (fit != null)
                     {
