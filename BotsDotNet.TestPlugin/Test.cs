@@ -14,6 +14,7 @@ namespace BotsDotNet.TestPlugin
         [Command("hello", Description = "Hello world!")]
         public async Task TestMethod(IMessage msg, IUser user, IBot bot)
         {
+            Console.WriteLine("Hello world");
             await bot.PrivateMessage(msg.User.Id, "Hey there buddy!");
             await msg.Reply($"Hello there {user.Nickname}. How are you doing today?");
             var answer = await msg.NextMessage();
@@ -27,7 +28,7 @@ namespace BotsDotNet.TestPlugin
             await msg.Reply("Hello Discord!");
         }
 
-        [Command("pal", Platform = BotPlatform.Palringo, Description = "Hello palringo!")]
+        [Command("pal", Platform = BotPlatform.PalringoV3, Description = "Hello palringo!")]
         public async Task PalringoTest(IMessage msg)
         {
             await msg.Reply("Hello Palringo!");
@@ -81,6 +82,7 @@ namespace BotsDotNet.TestPlugin
             catch (Exception e)
             {
                 await msg.Reply("Error occurred: " + e.Message);
+                Console.WriteLine(e);
             }
         }
         

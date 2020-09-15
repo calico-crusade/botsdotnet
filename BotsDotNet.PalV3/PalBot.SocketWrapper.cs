@@ -1,23 +1,24 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using SocketIOClient;
 using SocketIOClient.Arguments;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-//using Quobject.SocketIoClientDotNet.Client;
 
 namespace BotsDotNet.PalringoV3
 {
     using Delegates;
+    using Models;
     using Network;
 
     public partial class PalBot
     {
         public event VoidCarrier OnConnected = delegate { };
         public event VoidCarrier OnDisconnected = delegate { };
+        public event VoidCarrier OnReconnectFailed = delegate { };
 
-        public static string PalringoServerUri = "https://v3.palringo.com:3051";
+        public static string ServerUrl = "https://v3.palringo.com:3051";
 
         public string Token { get; private set; }
 
@@ -25,10 +26,11 @@ namespace BotsDotNet.PalringoV3
         {
             var tsc = new TaskCompletionSource<T>();
             Connection.EmitAsync(packet.Command,
-                JObject.FromObject(new
+                new
                 {
-                    body = packet.Body
-                }),
+                    headers = packet?.Headers,
+                    body = packet?.Body
+                },
                 (res) => HandleCallBack(res, tsc, packet.Command));
             return tsc.Task;
         }
@@ -47,21 +49,23 @@ namespace BotsDotNet.PalringoV3
                 if (task.Task.IsCompleted)
                     return;
 
-                var ser = JsonConvert.SerializeObject(data);
-                var d = JsonConvert.DeserializeObject<T>(ser);
+                var d = JsonConvert.DeserializeObject<T>(data.Text);
                 task.SetResult(d);
             });
 
             return task.Task;
         }
-
-        public void On<T>(string evt, Action<T> action)
+       
+        public void On<T>(string evt, Action<T> action, Func<ResponseArgs, T> func = null)
         {
+            Func<ResponseArgs, T> def = (r) => DataTransform<T>(JsonConvert.DeserializeObject(r.Text), evt: evt);
+            func = func ?? def;
+
             Connection.On(evt, (msg) =>
             {
                 try
                 {
-                    var type = DataTransform<T>(msg, evt: evt);
+                    var type = func(msg);
                     action(type);
                 }
                 catch (Exception ex)
@@ -71,12 +75,37 @@ namespace BotsDotNet.PalringoV3
             });
         }
 
+        public void MessageOn(Action<BaseMessage> action)
+        {
+            On("message send", action, (r) =>
+            {
+                try
+                {
+                    var pk = JsonConvert.DeserializeObject<Packet<BaseMessage>>(r.Text);
+
+                    var msg = pk.Body;
+                    if (msg.Data.Placeholder)
+                    {
+                        var data = r.Buffers[msg.Data.Num];
+                        var stuff = System.Text.Encoding.UTF8.GetString(data.ToArray());
+                        msg.Contents = stuff;
+                    }
+
+                    return msg;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    return new BaseMessage();
+                }
+            });
+        }
+
         private void HandleCallBack<T>(ResponseArgs result, TaskCompletionSource<T> task, string evt = "")
         {
             try
             {
-                Console.WriteLine(result.Text);
-                var res = DataTransform<T>(result, evt: evt);
+                var res = DataTransform<T>(JsonConvert.DeserializeObject(result.Text), evt: evt);
 
                 task.SetResult(res);
             }
@@ -96,6 +125,15 @@ namespace BotsDotNet.PalringoV3
                 throw new SocketException(result, "Error during translation");
             }
 
+            if (typeof(T) == typeof(Resp))
+            {
+                return (T)(object)new Resp
+                {
+                    Code = code,
+                    Raw = JsonConvert.SerializeObject(result)
+                };
+            }
+
             object body = codedDynamic.body;
 
             if (typeof(T) == typeof(object))
@@ -109,32 +147,10 @@ namespace BotsDotNet.PalringoV3
             return res;
         }
 
-        //private Socket CreateSocket(string token = null)
-        //{
-        //    Token = token ?? this.GenerateDeviceToken();
-        //    var socket = IO.Socket(PalringoServerUri, new IO.Options
-        //    {
-        //        Reconnection = true,
-        //        Transports = new[] { "websocket" }.ToImmutable(),
-        //        Query = new Dictionary<string, string>
-        //        {
-        //            ["token"] = Token,
-        //            ["device"] = "web"
-        //        }
-        //    });
-
-        //    socket.On(Socket.EVENT_CONNECT, () => OnConnected());
-        //    socket.On(Socket.EVENT_DISCONNECT, () => OnDisconnected());
-        //    socket.On(Socket.EVENT_ERROR, (e) => Error(new SocketException(e, "Error occurred in socket.")));
-        //    socket.On(Socket.EVENT_CONNECT_ERROR, (e) => Error(new SocketException(e, "Error occurred during socket connection.")));
-            
-        //    return socket;
-        //}
-
         private SocketIO CreateSocket(string token = null)
         {
             Token = token ?? this.GenerateDeviceToken();
-            var socket = new SocketIO(PalringoServerUri)
+            var socket = new SocketIO(ServerUrl)
             {
                 Parameters = new Dictionary<string, string>
                 {
@@ -144,10 +160,32 @@ namespace BotsDotNet.PalringoV3
             };
 
             socket.OnConnected += () => OnConnected();
-            socket.OnClosed += (a) => OnDisconnected();
+            socket.OnClosed += Socket_OnClosed;
             socket.OnError += (e) => Error(new SocketException(e.RawText, "Error occured in socket: " + e.Text));
 
+            socket.UnhandledEvent += Socket_OnReceivedEvent;
+            socket.OnReceivedEvent += Socket_OnReceivedEvent;
+            //socket.
+
             return socket;
+        }
+
+        private async void Socket_OnClosed(ServerCloseReason obj)
+        {
+            OnDisconnected();
+            if (obj == ServerCloseReason.Aborted ||
+                obj == ServerCloseReason.ClosedByClient ||
+                !AutoReconnect)
+                return;
+
+            var wt = On<Welcome>("welcome");
+
+            OnReconnectFailed();
+        }
+
+        private void Socket_OnReceivedEvent(string arg1, ResponseArgs arg2)
+        {
+            //Console.WriteLine("Socket Recieved: " + arg1 + arg2.Text);
         }
 
         private void WriteObject(object data, string prefix = "")

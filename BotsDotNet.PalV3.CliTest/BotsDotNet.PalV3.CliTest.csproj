@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BotsDotNet.PalV3\BotsDotNet.PalV3.csproj" />
+    <ProjectReference Include="..\BotsDotNet.TestPlugin\BotsDotNet.TestPlugin.csproj" />
+  </ItemGroup>
+
+</Project>

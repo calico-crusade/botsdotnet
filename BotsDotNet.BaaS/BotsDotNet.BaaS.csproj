@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BotsDotNet.Discord\BotsDotNet.Discord.csproj" />
     <ProjectReference Include="..\BotsDotNet.Palringo\BotsDotNet.Palringo.csproj" />
+    <ProjectReference Include="..\BotsDotNet.PalV3\BotsDotNet.PalV3.csproj" />
     <ProjectReference Include="..\BotsDotNet.Twitch\BotsDotNet.Twitch.csproj" />
   </ItemGroup>
 

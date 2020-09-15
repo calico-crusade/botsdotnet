@@ -8,6 +8,7 @@ namespace BotsDotNet.BaaS
 {
     using Conf;
     using Discord;
+    using P = PalringoV3.PalBot;
     using Palringo;
     using Palringo.Types;
     using Twitch;
@@ -16,6 +17,7 @@ namespace BotsDotNet.BaaS
     public interface IBotManager
     {
         IEnumerable<IBot> GetBots();
+        Task AddBotV3(PalringoAccount account);
         Task AddBot(PalringoAccount account);
         Task AddBot(DiscordAccount account);
         Task AddBot(TwitchAccount account);
@@ -37,6 +39,27 @@ namespace BotsDotNet.BaaS
         public IEnumerable<IBot> GetBots()
         {
             return Bots.ToArray();
+        }
+
+        public async Task AddBotV3(PalringoAccount account)
+        {
+            var bot = (P)AddDeps(P.DependencyInjection()).Build<IBot>();
+            bot.PluginSets = account.PluginSet;
+
+            bot.OnError += (e) => logger.LogError(e, LogMessage(bot, account.Email, "Error occurred"));
+            bot.OnDisconnected += () => logger.LogWarning(LogMessage(bot, account.Email, "Disconnected"));
+
+            var loggedIn = await bot.Login(account.Email, account.Password, null, account.Prefix);
+
+            if (!loggedIn)
+            {
+                logger.LogWarning(LogMessage(bot, account.Email, "Login Failed"));
+                return;
+            }
+
+            logger.LogInformation(LogMessage(bot, account.Email, "Login Success"));
+            settings.OnLoggedIn?.Invoke(bot);
+            Bots.Add(bot);
         }
 
         public async Task AddBot(PalringoAccount account)
@@ -124,7 +147,10 @@ namespace BotsDotNet.BaaS
                     continue;
                 }
 
-                await AddBot(account);
+                if (account.UseV3)
+                    await AddBotV3(account);
+                else
+                    await AddBot(account);
             }
 
             foreach (var account in configuration?.Discord ?? new DiscordAccount[0])
@@ -164,7 +190,7 @@ namespace BotsDotNet.BaaS
                     await palbot.Disconnect();
                     continue;
                 }
-
+                
                 if (bot is DiscordBot disc)
                 {
                     if (disc.Connection.ConnectionState != ConnectionState.Connected)
@@ -207,7 +233,7 @@ namespace BotsDotNet.BaaS
 
         public string LogMessage(string platform, string identifier, string message)
         {
-            platform = platform.PadRight(BotPlatform.Palringo.Length + 1);
+            platform = platform.PadRight(BotPlatform.PalringoV3.Length + 1);
 
             return $"{platform} >> {identifier} :: {message}";
         }

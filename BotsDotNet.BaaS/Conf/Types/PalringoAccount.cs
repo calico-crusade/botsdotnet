@@ -16,6 +16,7 @@ namespace BotsDotNet.BaaS.Conf
         public string OnlineStatus { get; set; }
         public string DeviceType { get; set; }
         public bool SpamFilter { get; set; } = false;
+        public bool UseV3 { get; set; } = false;
 
         public bool Validate(out string[] issues)
         {

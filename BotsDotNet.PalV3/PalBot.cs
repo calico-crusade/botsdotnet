@@ -24,6 +24,7 @@ namespace BotsDotNet.PalringoV3
 
         public string Email { get; private set; }
         public string Password { get; private set; }
+        public bool AutoReconnect { get; set; } = true;
 
         public SocketIO Connection { get; private set; }
 
@@ -36,20 +37,19 @@ namespace BotsDotNet.PalringoV3
             this.cacheUtility = cacheUtility;
         }
 
-        public async Task<bool> Login(string email, string password, string token = null)
+        public async Task<bool> Login(string email, string password, string token = null, string prefix = null)
         {
             try
             {
                 Email = email;
                 Password = password;
                 Connection = CreateSocket(token);
+                Prefix = prefix;
 
-                await Connection.ConnectAsync();
+                
+                MessageOn(HandleMessageRecieved);
 
-
-                var welcome = await On<Welcome>("welcome");
-
-                _user = (OutUser)(welcome.LoggedInUser ?? await WritePacket<User>(packetTemplate.Login(email, password)));
+                await DoLogin();
 
                 OnLoginSuccess();
                 return true;
@@ -60,22 +60,29 @@ namespace BotsDotNet.PalringoV3
                 return false;
             }
         }
+        
+        private async Task DoLogin()
+        {
+            var wt = On<Welcome>("welcome");
+
+            await Connection.ConnectAsync();
+
+            var welcome = await wt;
+
+            _user = (OutUser)(welcome.LoggedInUser ?? await WritePacket<User>(packetTemplate.Login(Email, Password)));
+        }
 
         private async void OnLoginSuccess()
         {
             try
             {
-                On<BaseMessage>("message send", HandleMessageRecieved);
-                await WritePacket(packetTemplate.PrivateMessageSubscribe());
-
-                _groups = (await WritePacket<Group[]>(packetTemplate.GroupList())).Cast<OutGroup>().ToArray();
-
-                var ids = _groups.Select(t => t.Id).ToArray();
-                await WritePacket(packetTemplate.GroupMessageSubscribe(ids));
+                var res = await WritePacket<Resp>(packetTemplate.PrivateMessageSubscribe());
+                _groups = (await WritePacket<Group[]>(packetTemplate.GroupList())).Select(t => (OutGroup)t).ToArray();
+                res = await WritePacket<Resp>(packetTemplate.GroupMessageSubscribe());
             }
             catch(SocketException ex)
             {
-                WriteObject(ex.ReturnData);
+                WriteObject(ex?.ReturnData);
                 Error(ex);
             }
             catch (Exception ex)
