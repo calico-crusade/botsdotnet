@@ -32,7 +32,7 @@ namespace BotsDotNet.PalringoV3.Models
         public int? DeviceType { get; set; }
 
         [JsonProperty("groupMemberCapabilities")]
-        public int? GroupMemberCapabilities { get; set; }
+        public GroupUserType? GroupMemberCapabilities { get; set; }
 
         [JsonProperty("contactListBlockedState")]
         public int? ContactListBlockedState { get; set; }

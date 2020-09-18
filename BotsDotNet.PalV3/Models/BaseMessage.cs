@@ -5,8 +5,8 @@ namespace BotsDotNet.PalringoV3.Models
     public class BaseMessage
     {
         public string Id { get; set; }
-        public string Recipient { get; set; }
-        public string Originator { get; set; }
+        public IdReferences Recipient { get; set; }
+        public IdReferences Originator { get; set; }
         public bool IsGroup { get; set; }
         public long Timestamp { get; set; }
         public string MimeType { get; set; }
@@ -26,5 +26,11 @@ namespace BotsDotNet.PalringoV3.Models
             public bool Placeholder { get; set; }
             public int Num { get; set; }
         }
+
+        public class IdReferences
+		{
+            public int Id { get; set; }
+            public string Hash { get; set; }
+		}
     }
 }

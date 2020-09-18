@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace BotsDotNet.PalringoV3.Network
 {
@@ -10,8 +11,10 @@ namespace BotsDotNet.PalringoV3.Network
         Packet Message(string userid, bool isGroup, object msg, string mimetype = "text/plain");
         Packet GroupList();
         Packet GroupJoin(int groupId, string password = "");
+        Packet GroupLeave(int groupId);
         Packet GroupProfile(string gid, bool extended = true);
         Packet UserProfile(string uid, bool extended = true);
+        Packet UsersProfile(bool extended, bool subscribe, int[] idList);
         Packet GroupMemberList(string gid, bool subscribe = true);
         string FlightId();
     }
@@ -58,26 +61,58 @@ namespace BotsDotNet.PalringoV3.Network
             });
 		}
 
+        public Packet GroupLeave(int groupId)
+		{
+            return new Packet("group member delete", new
+            {
+                groupId
+            });
+		}
+
         public Packet PrivateMessageSubscribe()
         {
-            return new Packet("message private subscribe", new { });
+            return new Packet("message private subscribe", new { })
+            {
+                Headers = new Dictionary<string, object>()
+                {
+                    ["version"] = 2
+                }
+            };
         }
 
         public Packet GroupMessageSubscribe(params string[] ids)
         {
             if (ids == null || ids.Length <= 0)
-                return new Packet("message group subscribe", new { });
+                return new Packet("message group subscribe", new { })
+                {
+                    Headers = new Dictionary<string, object>()
+                    {
+                        ["version"] = 4
+                    }
+                };
 
             if (ids.Length == 1)
                 return new Packet("message group subscribe", new
                 {
                     id = int.Parse(ids[0])
-                });
+                })
+                {
+                    Headers = new Dictionary<string, object>()
+                    {
+                        ["version"] = 4
+                    }
+                };
 
             return new Packet("message group subscribe", new
             {
                 idList = ids.Select(t => int.Parse(t)).ToArray()
-            });
+            })
+            {
+                Headers= new Dictionary<string, object>()
+				{
+                    ["version"] = 4
+				}
+            };
         }
 
         public Packet GroupList()
@@ -103,13 +138,35 @@ namespace BotsDotNet.PalringoV3.Network
             });
         }
 
+        public Packet UsersProfile(bool extended, bool subscribe, int[] idList)
+		{
+            return new Packet("subscriber profile", new
+            {
+                extended,
+                idList,
+                subscribe
+            })
+            {
+                Headers = new Dictionary<string, object>
+				{
+                    ["version"] = 4
+				}
+            };
+		}
+
         public Packet GroupMemberList(string gid, bool subscribe = true)
         {
             return new Packet("group member list", new
             {
                 id = int.Parse(gid),
                 subscribe
-            });
+            })
+            {
+                Headers = new Dictionary<string, object>()
+                {
+                    ["version"] = 3
+                }
+            };
         }
     }
 }

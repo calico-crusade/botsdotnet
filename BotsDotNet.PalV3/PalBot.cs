@@ -48,6 +48,7 @@ namespace BotsDotNet.PalringoV3
 
                 
                 MessageOn(HandleMessageRecieved);
+                GroupMemberUpdate();
 
                 await DoLogin();
 
@@ -95,8 +96,8 @@ namespace BotsDotNet.PalringoV3
         {
             try
             {
-                var user = await GetUser(msg.Originator);
-                var group = msg.IsGroup ? await GetGroup(msg.Recipient) : null;
+                var user = await GetUser(msg.Originator.Id.ToString());
+                var group = msg.IsGroup ? await GetGroup(msg.Recipient.Id.ToString()) : null;
 
                 var m = new Message(msg, user, group, this);
                 await base.MessageReceived(m);

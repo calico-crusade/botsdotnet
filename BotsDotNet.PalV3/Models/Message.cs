@@ -14,7 +14,7 @@ namespace BotsDotNet.PalringoV3.Models
             Content = msg.Contents;
             TimeStamp = new DateTime(msg.Timestamp);
             UserId = user.Id;
-            GroupId = msg.IsGroup ? msg.Recipient : null;
+            GroupId = msg.IsGroup ? msg.Recipient.Id.ToString() : null;
             MimeType = msg.MimeType;
 
             ContentType = ContentType.Other;

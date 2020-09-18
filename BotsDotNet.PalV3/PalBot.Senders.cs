@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BotsDotNet.PalringoV3
@@ -20,9 +19,13 @@ namespace BotsDotNet.PalringoV3
 
         public async override Task<IUser[]> GetGroupUsers(string groupid)
         {
-            var users = await WritePacket<User[]>(packetTemplate.GroupMemberList(groupid));
-            return users.Select(t => (OutUser)t).ToArray();
+            return await cacheUtility.GetGroupUsers(groupid, this);
         }
+
+        public Task<ExtendedGroupUser> GetGroupUser(string groupid, string userid)
+		{
+            return cacheUtility.GetGroupUser(groupid, userid, this);
+		}
 
         private async Task<IMessageResponse> Message(string id, bool isGroup, object content, string mimetype = "text/plain")
         {
@@ -38,6 +41,11 @@ namespace BotsDotNet.PalringoV3
                 return result;
 
             return await WritePacket<Resp>(packetTemplate.GroupMessageSubscribe(groupId.ToString()));
+		}
+
+        public Task<Resp> GroupLeave(int groupId)
+		{
+            return WritePacket<Resp>(packetTemplate.GroupLeave(groupId));
 		}
 
         public override Task<IMessageResponse> GroupMessage(string groupid, string contents)

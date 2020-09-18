@@ -95,11 +95,29 @@ namespace BotsDotNet.PalringoV3
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.ToString());
+                    Error(ex);
                     return new BaseMessage();
                 }
             });
         }
+
+        public void GroupMemberUpdate()
+		{
+            On("group member update", (GroupUserUpdate update) =>
+            {
+                cacheUtility.UpdateGroupMember(update, false);
+            });
+
+            On("group member delete", (GroupUserUpdate update) =>
+            {
+                cacheUtility.UpdateGroupMember(update, true);
+            });
+
+            On("group member add", (GroupUserUpdate update) =>
+            {
+                cacheUtility.UpdateGroupMember(update, false);
+            });
+		}
 
         private void HandleCallBack<T>(ResponseArgs result, TaskCompletionSource<T> task, string evt = "")
         {
@@ -178,9 +196,11 @@ namespace BotsDotNet.PalringoV3
                 !AutoReconnect)
                 return;
 
-            var wt = On<Welcome>("welcome");
+            var result = await Login(Email, Password, Token, Prefix);
+            //var wt = On<Welcome>("welcome");
 
-            OnReconnectFailed();
+            if (!result)
+                OnReconnectFailed();
         }
 
         private void Socket_OnReceivedEvent(string arg1, ResponseArgs arg2)
@@ -188,7 +208,7 @@ namespace BotsDotNet.PalringoV3
             //Console.WriteLine("Socket Recieved: " + arg1 + arg2.Text);
         }
 
-        private void WriteObject(object data, string prefix = "")
+        public void WriteObject(object data, string prefix = "")
         {
             Console.WriteLine(prefix + JsonConvert.SerializeObject(data, Formatting.Indented));
         }
